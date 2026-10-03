@@ -20,7 +20,7 @@ A Dash to Dock style dock for the Omarchy shell. Hyprland has no minimize, so Do
 - Unread counts and progress bars on the icons, from the apps that publish them. Other apps get a count of their notifications that clears when you open the app.
 - Bottom, left or right edge, autohide, panel mode, optional blur, and it stays out of fullscreen games and screen recordings.
 - Scroll to cycle windows, a bounce while an app starts and a wiggle when a window asks for attention.
-- Settings window with tabs for appearance, position, behavior, animations and items.
+- Settings window with tabs for appearance, position, behavior, animations and the menu and items, and a button that restores the defaults.
 
 ## Screenshots
 

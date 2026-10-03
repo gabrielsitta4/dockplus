@@ -43,6 +43,7 @@ def main():
     address = Gio.dbus_address_get_for_bus_sync(Gio.BusType.SESSION, None)
     flags = Gio.DBusConnectionFlags.AUTHENTICATION_CLIENT | Gio.DBusConnectionFlags.MESSAGE_BUS_CONNECTION
     connection = Gio.DBusConnection.new_for_address_sync(address, flags, None, None)
+    connection.set_exit_on_close(True)
     connection.add_filter(on_message)
     rule = "type='method_call',interface='%s',member='Notify'" % INTERFACE
     connection.call_sync("org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus.Monitoring",

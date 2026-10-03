@@ -25,7 +25,7 @@ function mprisName(busName) {
 }
 
 function trackLabel(title, artist) {
-  var parts = [String(title || ""), String(artist || "")].filter(function(part) { return part !== "" })
+  var parts = [String(title || "").substring(0, 120), String(artist || "").substring(0, 80)].filter(function(part) { return part !== "" })
   return parts.join(" · ")
 }
 

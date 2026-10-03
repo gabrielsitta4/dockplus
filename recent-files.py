@@ -4,14 +4,18 @@ import os
 import shlex
 import sys
 import xml.etree.ElementTree as ET
-from urllib.parse import unquote, urlparse
+from urllib.parse import quote, unquote, urlparse
 
 NS = "{http://www.freedesktop.org/standards/desktop-bookmarks}"
 PER_PROGRAM = 5
 MAX_PROGRAMS = 64
+MAX_FILE_BYTES = 4 * 1024 * 1024
+MAX_EXEC = 4096
 
 
 def program(exec_line):
+    if len(exec_line) > MAX_EXEC:
+        return ""
     try:
         parts = shlex.split(exec_line)
         if len(parts) == 1:
@@ -23,6 +27,8 @@ def program(exec_line):
 
 def main():
     try:
+        if os.path.getsize(sys.argv[1]) > MAX_FILE_BYTES:
+            raise OSError
         root = ET.parse(sys.argv[1]).getroot()
     except (ET.ParseError, OSError, IndexError):
         print("{}")
@@ -36,10 +42,11 @@ def main():
         for app in bookmark.iter(NS + "application"):
             name = program(app.get("exec", ""))
             if name and name != "gio":
-                seen.append((app.get("modified", ""), name, bookmark.get("href"), path))
+                seen.append((app.get("modified", ""), name, path))
     seen.sort(reverse=True)
     out = {}
-    for _, name, uri, path in seen:
+    for _, name, path in seen:
+        uri = "file://" + quote(path)
         files = out.get(name)
         if files is None:
             if len(out) >= MAX_PROGRAMS:

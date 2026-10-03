@@ -13,7 +13,8 @@ Rectangle {
   readonly property int maxFiles: 12
   readonly property int cellWidth: 92
   readonly property int iconSize: 48
-  readonly property int shown: Math.min(files.count, maxFiles)
+  readonly property real maxThumbnailBytes: 32 * 1024 * 1024
+  readonly property int shown: path ? Math.min(files.count, maxFiles) : 0
 
   signal finished()
 
@@ -73,7 +74,8 @@ Rectangle {
         readonly property string fileName: files.get(index, "fileName") || ""
         readonly property string filePath: files.get(index, "filePath") || ""
         readonly property bool isDir: files.get(index, "fileIsDir") === true
-        readonly property bool isImage: !isDir && Logic.isImage(fileName)
+        readonly property real fileSize: files.get(index, "fileSize") || 0
+        readonly property bool isImage: !isDir && fileSize > 0 && fileSize <= stack.maxThumbnailBytes && Logic.isImage(fileName)
 
         width: stack.cellWidth
         height: stack.iconSize + cellLabel.implicitHeight + 16
@@ -89,7 +91,7 @@ Rectangle {
           fillMode: Image.PreserveAspectFit
           asynchronous: true
           smooth: true
-          source: cell.isImage ? "file://" + cell.filePath : stack.iconSource(cell.fileName, cell.isDir)
+          source: cell.isImage ? files.get(cell.index, "fileUrl") : stack.iconSource(cell.fileName, cell.isDir)
         }
 
         Text {

@@ -93,6 +93,7 @@ Item {
     id: notifyWatch
     running: root.countNotifications
     command: ["python3", root.notifyScript]
+    onStarted: root.notifyRetries = 0
     stdout: SplitParser {
       onRead: function(line) {
         if (line.length > root.maxLine) return

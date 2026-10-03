@@ -18,6 +18,7 @@ Item {
 
   FileView {
     path: root.dataHome + "/recently-used.xbel"
+    preload: false
     watchChanges: true
     printErrors: false
     onFileChanged: refresh.restart()

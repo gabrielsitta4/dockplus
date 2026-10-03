@@ -23,7 +23,7 @@ Item {
   readonly property bool showDrives: adapter.showDrives
   readonly property bool showPinned: adapter.showPinned
   readonly property bool notificationBadges: adapter.notificationBadges
-  readonly property int minOpacity: 40
+  readonly property int minOpacity: 15
   readonly property var indicatorStyles: ["default", "dots", "dashes", "segments"]
   readonly property string indicatorStyle: indicatorStyles.indexOf(adapter.indicatorStyle) !== -1 ? adapter.indicatorStyle : "default"
   readonly property int backgroundOpacity: Math.max(minOpacity, Math.min(100, adapter.backgroundOpacity))

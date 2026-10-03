@@ -78,6 +78,14 @@ Item {
 
   function badgeFor(key) { return dockBadges.of(key) }
 
+  function keyFromNames(names) {
+    for (var i = 0; i < names.length; i++) {
+      var entry = entryFor(names[i])
+      if (entry) return entry.id
+    }
+    return ""
+  }
+
   function folderName(path) { return Logic.folderName(path) }
 
   function folderIcons(path) { return Logic.folderIcons(path) }
@@ -482,6 +490,9 @@ Item {
   Badges {
     id: dockBadges
     known: root.badgeKeys
+    countNotifications: dockConfig.notificationBadges
+    focusedKey: Hyprland.activeToplevel ? root.keyOf(Hyprland.activeToplevel) : ""
+    resolve: root.keyFromNames
   }
 
   Recent { id: dockRecent }

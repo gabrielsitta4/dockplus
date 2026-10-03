@@ -83,6 +83,8 @@ var tables = {
     recentFiles: "Recent files",
     openFolder: "Open folder",
     emptyFolder: "This folder is empty",
+    notificationBadges: "Count notifications on icons",
+    notificationBadgesHint: "For apps that do not show their own count. Clears when you open the app",
     allMonitors: "All"
   },
   pt: {
@@ -167,6 +169,8 @@ var tables = {
     recentFiles: "Arquivos recentes",
     openFolder: "Abrir pasta",
     emptyFolder: "Esta pasta está vazia",
+    notificationBadges: "Contar notificações nos ícones",
+    notificationBadgesHint: "Para apps que não mostram contador próprio. Zera quando você abre o app",
     allMonitors: "Todos"
   }
 }

@@ -105,6 +105,12 @@ function folderToken(prefix, path) {
   return prefix + String(path).replace(/\/+$/, "")
 }
 
+function notifyNames(update) {
+  if (!update) return []
+  return [update.entry, update.app].map(function(name) { return String(name || "") })
+    .filter(function(name) { return name !== "" && name.length <= maxBadgeKey })
+}
+
 function badgeFrom(update) {
   var key = String(update.appId || "")
   if (!key || key.length > maxBadgeKey) return null

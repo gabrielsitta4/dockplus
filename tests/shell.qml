@@ -93,6 +93,11 @@ ShellRoot {
     check("fileIcons of an archive", Logic.fileIcons("mod.tar.zst", false)[0], "package-x-generic")
     check("fileIcons of something unknown", Logic.fileIcons("notes", false), ["text-x-generic", "unknown"])
 
+    check("notifyNames prefers the desktop entry", Logic.notifyNames({ app: "Discord", entry: "discord" }), ["discord", "Discord"])
+    check("notifyNames skips empty names", Logic.notifyNames({ app: "Steam", entry: "" }), ["Steam"])
+    check("notifyNames drops an overlong name", Logic.notifyNames({ app: new Array(200).join("a") }), [])
+    check("notifyNames of nothing", Logic.notifyNames(null), [])
+
     check("badgeFrom with a visible count", Logic.badgeFrom({ appId: "discord", count: 7, countVisible: true }),
       { key: "discord", value: { count: 7, progress: -1 } })
     check("badgeFrom with a hidden count", Logic.badgeFrom({ appId: "discord", count: 7, countVisible: false }),

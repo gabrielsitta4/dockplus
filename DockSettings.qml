@@ -413,6 +413,14 @@ PanelWindow {
 
         ToggleRow {
           width: parent.width
+          label: win.dock.tr("notificationBadges")
+          hint: win.dock.tr("notificationBadgesHint")
+          checked: win.config.notificationBadges
+          onToggled: function(value) { win.config.setNotificationBadges(value) }
+        }
+
+        ToggleRow {
+          width: parent.width
           label: win.dock.tr("showAppsButton")
           checked: win.config.showAppsButton
           onToggled: function(value) { win.config.setShowAppsButton(value) }

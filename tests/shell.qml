@@ -76,6 +76,8 @@ ShellRoot {
     check("mprisName of a browser instance", Logic.mprisName("org.mpris.MediaPlayer2.brave.instance4244"), "brave")
     check("mprisName of a plain player", Logic.mprisName("org.mpris.MediaPlayer2.spotify"), "spotify")
     check("mprisName of another bus name", Logic.mprisName("org.freedesktop.Notifications"), "")
+    check("joinGroups puts separators only between filled groups", Logic.joinGroups([[1], [], [2, 3], [4]]), [1, { separator: true }, 2, 3, { separator: true }, 4])
+    check("joinGroups of empty groups", Logic.joinGroups([[], []]), [])
     check("trackLabel with title and artist", Logic.trackLabel("Song", "Band"), "Song · Band")
     check("trackLabel without an artist", Logic.trackLabel("Video", ""), "Video")
     check("trackLabel with nothing", Logic.trackLabel(undefined, null), "")

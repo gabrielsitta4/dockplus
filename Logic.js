@@ -24,6 +24,15 @@ function mprisName(busName) {
   return name.substring(prefix.length).split(".")[0]
 }
 
+function joinGroups(groups) {
+  var out = []
+  groups.filter(function(group) { return group.length > 0 }).forEach(function(group) {
+    if (out.length > 0) out.push({ separator: true })
+    out = out.concat(group)
+  })
+  return out
+}
+
 function trackLabel(title, artist) {
   var parts = [String(title || "").substring(0, 120), String(artist || "").substring(0, 80)].filter(function(part) { return part !== "" })
   return parts.join(" · ")

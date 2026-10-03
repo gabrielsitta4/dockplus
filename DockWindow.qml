@@ -114,7 +114,10 @@ PanelWindow {
       numbersVisible = true
       numbersTimer.restart()
     }
-    dock.activateEntry(entries[index], scope)
+    var entry = entries[index]
+    var slot = entryRepeater.itemAt(index)
+    if (entry.kind === "folder" && slot && slot.item) toggleStack(slot.item, entry.path)
+    else dock.activateEntry(entry, scope)
   }
 
   function toggleStack(item, path) {
@@ -179,6 +182,11 @@ PanelWindow {
     menuEntries = entries
     menuCenter = item ? mainCenter(item) : (vertical ? height : width) / 2
     menuOpen = true
+  }
+
+  function runMenuButton(button) {
+    menuOpen = false
+    if (button && button.enabled && typeof button.run === "function") button.run()
   }
 
   function runMenuEntry(entry) {
@@ -405,6 +413,7 @@ PanelWindow {
         spacing: win.itemSpacing
 
         Repeater {
+          id: entryRepeater
           model: ScriptModel {
             objectProp: "key"
             values: win.entries
@@ -554,9 +563,9 @@ PanelWindow {
             readonly property var entry: win.menuEntries[index] || ({})
 
             width: 230
-            height: entry.separator ? 9 : menuLabel.implicitHeight + 14
+            height: entry.separator ? 9 : entry.buttons ? 38 : menuLabel.implicitHeight + 14
             radius: Style.cornerRadius
-            color: menuMouse.containsMouse && !entry.separator && !entry.info ? Util.alpha(Color.popups.text, 0.1) : "transparent"
+            color: menuMouse.containsMouse && !entry.separator && !entry.info && !entry.buttons ? Util.alpha(Color.popups.text, 0.1) : "transparent"
 
             Rectangle {
               visible: menuRow.entry.separator === true
@@ -567,10 +576,48 @@ PanelWindow {
               color: Util.alpha(Color.popups.text, 0.15)
             }
 
+            Row {
+              visible: !!menuRow.entry.buttons
+              anchors.centerIn: parent
+              spacing: 6
+
+              Repeater {
+                model: menuRow.entry.buttons ? menuRow.entry.buttons.length : 0
+
+                Rectangle {
+                  id: mediaButton
+                  required property int index
+                  readonly property var button: menuRow.entry.buttons[index]
+
+                  width: 64
+                  height: 32
+                  radius: Style.cornerRadius
+                  color: mediaMouse.containsMouse && button.enabled ? Util.alpha(Color.popups.text, 0.1) : "transparent"
+
+                  Text {
+                    textFormat: Text.PlainText
+                    anchors.centerIn: parent
+                    text: mediaButton.button.glyph
+                    color: Util.alpha(Color.popups.text, mediaButton.button.enabled ? 1 : 0.35)
+                    font.family: Style.fontFamily
+                    font.pixelSize: Style.fontPx(1.5)
+                  }
+
+                  MouseArea {
+                    id: mediaMouse
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    enabled: mediaButton.button.enabled === true
+                    onClicked: win.runMenuButton(mediaButton.button)
+                  }
+                }
+              }
+            }
+
             Text {
               id: menuLabel
               textFormat: Text.PlainText
-              visible: menuRow.entry.separator !== true
+              visible: menuRow.entry.separator !== true && !menuRow.entry.buttons
               anchors.verticalCenter: parent.verticalCenter
               x: 14
               width: parent.width - 28
@@ -585,7 +632,7 @@ PanelWindow {
               id: menuMouse
               anchors.fill: parent
               hoverEnabled: true
-              enabled: menuRow.entry.separator !== true && menuRow.entry.info !== true
+              enabled: menuRow.entry.separator !== true && menuRow.entry.info !== true && !menuRow.entry.buttons
               onClicked: win.runMenuEntry(menuRow.entry)
             }
           }

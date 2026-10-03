@@ -29,54 +29,63 @@ DockSlot {
     return states
   }
 
+  function mediaGroup(player) {
+    var group = []
+    var track = Logic.trackLabel(player.trackTitle, player.trackArtist)
+    if (track) group.push({ label: track, info: true })
+    group.push({ buttons: [
+      { glyph: String.fromCodePoint(0xF04AE), enabled: player.canGoPrevious, run: function() { player.previous() } },
+      { glyph: String.fromCodePoint(player.isPlaying ? 0xF03E4 : 0xF040A), enabled: player.canTogglePlaying, run: function() { player.togglePlaying() } },
+      { glyph: String.fromCodePoint(0xF04AD), enabled: player.canGoNext, run: function() { player.next() } }
+    ] })
+    return group
+  }
+
   function menuEntries() {
-    var entries = []
     var open = openWindows.slice()
     var minimized = minimizedWindows.slice()
     var all = windows.slice()
+    var target = open.find(function(window) { return window.activated }) || open[0]
     var player = dock.playerFor(appKey)
-    if (player) {
-      var track = Logic.trackLabel(player.trackTitle, player.trackArtist)
-      if (track) entries.push({ label: track, info: true })
-      if (player.canTogglePlaying) entries.push({ label: dock.tr(player.isPlaying ? "pause" : "play"), run: function() { player.togglePlaying() } })
-      if (player.canGoPrevious) entries.push({ label: dock.tr("previous"), run: function() { player.previous() } })
-      if (player.canGoNext) entries.push({ label: dock.tr("next"), run: function() { player.next() } })
-      entries.push({ separator: true })
-    }
-    if (entry) entries.push({ label: dock.tr("newWindow"), run: function() { item.dock.newWindow(item.appKey) } })
-    var actions = dock.actionsFor(appKey)
-    actions.forEach(function(action) {
-      entries.push({ label: action.name, run: function() { item.dock.runAction(action) } })
+
+    var launch = []
+    if (entry) launch.push({ label: dock.tr("newWindow"), run: function() { item.dock.newWindow(item.appKey) } })
+    dock.actionsFor(appKey).forEach(function(action) {
+      launch.push({ label: action.name, run: function() { item.dock.runAction(action) } })
     })
-    var recentFiles = dock.recentFilesOf(appKey)
-    if (recentFiles.length > 0) {
-      entries.push({ label: dock.tr("recentFiles"), info: true })
-      recentFiles.forEach(function(file) {
-        entries.push({ label: file.name, run: function() { item.dock.openWith(item.appKey, [file.uri]) } })
-      })
-    }
-    if (actions.length > 0 || recentFiles.length > 0) entries.push({ separator: true })
-    if (open.length > 0) entries.push({ label: dock.tr("minimize"), run: function() {
-      var target = open.find(function(window) { return window.activated }) || open[0]
-      item.dock.minimizer.minimize(target)
-    } })
-    if (open.length > 0) entries.push({ label: dock.tr("moveToWorkspace"), run: function() {
-      var target = open.find(function(window) { return window.activated }) || open[0]
-      item.host.openMenu(item, item.host.workspaceMenu(target))
-    } })
-    if (minimized.length > 0) entries.push({ label: dock.tr("restore"), run: function() {
+
+    var recent = dock.recentFilesOf(appKey).map(function(file) {
+      return { label: file.name, run: function() { item.dock.openWith(item.appKey, [file.uri]) } }
+    })
+    if (recent.length > 0) recent.unshift({ label: dock.tr("recentFiles"), info: true })
+
+    var manage = []
+    if (target) manage.push({ label: dock.tr("minimize"), run: function() { item.dock.minimizer.minimize(target) } })
+    if (minimized.length > 0) manage.push({ label: dock.tr("restore"), run: function() {
       item.dock.minimizer.restore(minimized[minimized.length - 1])
     } })
+    if (target) manage.push({ label: dock.tr("moveToWorkspace"), run: function() {
+      item.host.openMenu(item, item.host.workspaceMenu(target))
+    } })
+
+    var keep = []
     if (dock.config.isPinned(appKey))
-      entries.push({ label: dock.tr("unpin"), run: function() { item.dock.config.unpin(item.appKey) } })
+      keep.push({ label: dock.tr("unpin"), run: function() { item.dock.config.unpin(item.appKey) } })
     else if (entry)
-      entries.push({ label: dock.tr("pin"), run: function() { item.dock.config.pin(item.appKey) } })
-    if (all.length > 0) entries.push({
+      keep.push({ label: dock.tr("pin"), run: function() { item.dock.config.pin(item.appKey) } })
+    if (all.length > 0) keep.push({
       label: dock.tr(all.length > 1 ? "closeAll" : "close"),
       run: function() { all.forEach(function(window) { item.dock.closeWindow(window) }) }
     })
-    entries.push({ label: dock.tr("settings"), run: function() { item.dock.openSettings() } })
-    return entries
+
+    return Logic.joinGroups([
+      player ? mediaGroup(player) : [],
+      launch,
+      recent,
+      manage,
+      keep,
+      [{ label: dock.tr("settings"), run: function() { item.dock.openSettings() } }]
+    ])
   }
 
   function leftClick() {

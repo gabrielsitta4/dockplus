@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import qs.Commons
+import "Logic.js" as Logic
 
 DockSlot {
   id: item
@@ -33,6 +34,15 @@ DockSlot {
     var open = openWindows.slice()
     var minimized = minimizedWindows.slice()
     var all = windows.slice()
+    var player = dock.playerFor(appKey)
+    if (player) {
+      var track = Logic.trackLabel(player.trackTitle, player.trackArtist)
+      if (track) entries.push({ label: track, info: true })
+      if (player.canTogglePlaying) entries.push({ label: dock.tr(player.isPlaying ? "pause" : "play"), run: function() { player.togglePlaying() } })
+      if (player.canGoPrevious) entries.push({ label: dock.tr("previous"), run: function() { player.previous() } })
+      if (player.canGoNext) entries.push({ label: dock.tr("next"), run: function() { player.next() } })
+      entries.push({ separator: true })
+    }
     if (entry) entries.push({ label: dock.tr("newWindow"), run: function() { item.dock.newWindow(item.appKey) } })
     var actions = dock.actionsFor(appKey)
     actions.forEach(function(action) {

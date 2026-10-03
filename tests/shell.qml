@@ -73,6 +73,13 @@ ShellRoot {
     check("workspaceTargets fills a gap", Logic.workspaceTargets([1, 3], 1), { existing: [3], fresh: 2 })
     check("workspaceTargets with no workspace", Logic.workspaceTargets([], 0), { existing: [], fresh: 1 })
 
+    check("mprisName of a browser instance", Logic.mprisName("org.mpris.MediaPlayer2.brave.instance4244"), "brave")
+    check("mprisName of a plain player", Logic.mprisName("org.mpris.MediaPlayer2.spotify"), "spotify")
+    check("mprisName of another bus name", Logic.mprisName("org.freedesktop.Notifications"), "")
+    check("trackLabel with title and artist", Logic.trackLabel("Song", "Band"), "Song · Band")
+    check("trackLabel without an artist", Logic.trackLabel("Video", ""), "Video")
+    check("trackLabel with nothing", Logic.trackLabel(undefined, null), "")
+
     check("badgeFrom with a visible count", Logic.badgeFrom({ appId: "discord", count: 7, countVisible: true }),
       { key: "discord", value: { count: 7, progress: -1 } })
     check("badgeFrom with a hidden count", Logic.badgeFrom({ appId: "discord", count: 7, countVisible: false }),

@@ -17,6 +17,18 @@ function nextIndex(count, current, step) {
   return ((current + step) % count + count) % count
 }
 
+function mprisName(busName) {
+  var prefix = "org.mpris.MediaPlayer2."
+  var name = String(busName || "")
+  if (name.indexOf(prefix) !== 0) return ""
+  return name.substring(prefix.length).split(".")[0]
+}
+
+function trackLabel(title, artist) {
+  var parts = [String(title || ""), String(artist || "")].filter(function(part) { return part !== "" })
+  return parts.join(" · ")
+}
+
 function workspaceTargets(ids, current) {
   var used = ids.filter(function(id) { return id > 0 }).sort(function(a, b) { return a - b })
   var free = 1

@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import Quickshell.Services.Mpris
 import "I18n.js" as I18n
 import "Logic.js" as Logic
 
@@ -159,6 +160,20 @@ Item {
       Quickshell.execDetached(["uwsm-app", "--"].concat(action.command))
     else
       action.execute()
+  }
+
+  function playerFor(key) {
+    var entry = entryFor(key)
+    var name = entry ? String(entry.name).toLowerCase() : ""
+    var matches = Mpris.players.values.filter(function(player) {
+      var byEntry = root.entryFor(player.desktopEntry)
+      if (byEntry && byEntry.id === key) return true
+      if (name && String(player.identity).toLowerCase() === name) return true
+      var byBus = root.entryFor(Logic.mprisName(player.dbusName))
+      return !!byBus && byBus.id === key
+    })
+    var playing = matches.filter(function(player) { return player.isPlaying })
+    return playing.length > 0 ? playing[0] : matches.length > 0 ? matches[0] : null
   }
 
   function pinApp(appId) {

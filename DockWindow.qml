@@ -521,7 +521,7 @@ PanelWindow {
             width: 230
             height: entry.separator ? 9 : menuLabel.implicitHeight + 14
             radius: Style.cornerRadius
-            color: menuMouse.containsMouse && !entry.separator ? Util.alpha(Color.popups.text, 0.1) : "transparent"
+            color: menuMouse.containsMouse && !entry.separator && !entry.info ? Util.alpha(Color.popups.text, 0.1) : "transparent"
 
             Rectangle {
               visible: menuRow.entry.separator === true
@@ -541,7 +541,7 @@ PanelWindow {
               width: parent.width - 28
               elide: Text.ElideRight
               text: menuRow.entry.label || ""
-              color: Color.popups.text
+              color: menuRow.entry.info ? Util.alpha(Color.popups.text, 0.6) : Color.popups.text
               font.family: Style.fontFamily
               font.pixelSize: Style.fontPx(1)
             }
@@ -550,7 +550,7 @@ PanelWindow {
               id: menuMouse
               anchors.fill: parent
               hoverEnabled: true
-              enabled: menuRow.entry.separator !== true
+              enabled: menuRow.entry.separator !== true && menuRow.entry.info !== true
               onClicked: win.runMenuEntry(menuRow.entry)
             }
           }

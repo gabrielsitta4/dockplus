@@ -76,6 +76,10 @@ var tables = {
     moveToWorkspace: "Move to workspace",
     workspace: "Workspace %1",
     newWorkspace: "New workspace (%1)",
+    play: "Play",
+    pause: "Pause",
+    previous: "Previous track",
+    next: "Next track",
     allMonitors: "All"
   },
   pt: {
@@ -153,6 +157,10 @@ var tables = {
     moveToWorkspace: "Mover para workspace",
     workspace: "Workspace %1",
     newWorkspace: "Novo workspace (%1)",
+    play: "Tocar",
+    pause: "Pausar",
+    previous: "Faixa anterior",
+    next: "Próxima faixa",
     allMonitors: "Todos"
   }
 }

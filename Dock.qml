@@ -263,6 +263,17 @@ Item {
     dispatch('hl.dsp.focus({ window = "address:' + address(toplevel) + '" })')
   }
 
+  function moveToWorkspace(toplevel, id) {
+    dispatch('hl.dsp.window.move({ window = "address:' + address(toplevel) + '", workspace = "' + id + '", follow = false })')
+  }
+
+  function workspaceTargets(toplevel) {
+    var client = clientOf(toplevel)
+    var current = client && client.workspace ? client.workspace.id : 0
+    var ids = Hyprland.workspaces.values.map(function(workspace) { return workspace.id })
+    return Logic.workspaceTargets(ids, current)
+  }
+
   function closeWindow(toplevel) {
     dispatch('hl.dsp.window.close({ window = "address:' + address(toplevel) + '" })')
   }

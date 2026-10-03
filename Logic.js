@@ -17,6 +17,16 @@ function nextIndex(count, current, step) {
   return ((current + step) % count + count) % count
 }
 
+function workspaceTargets(ids, current) {
+  var used = ids.filter(function(id) { return id > 0 }).sort(function(a, b) { return a - b })
+  var free = 1
+  while (used.indexOf(free) !== -1) free++
+  return {
+    existing: used.filter(function(id) { return id !== current }),
+    fresh: free
+  }
+}
+
 function folderName(path) {
   var parts = String(path).split("/").filter(function(part) { return part !== "" })
   return parts.length > 0 ? parts[parts.length - 1] : String(path)

@@ -73,6 +73,9 @@ var tables = {
     positionLeft: "Left",
     positionRight: "Right",
     monitor: "Monitor",
+    moveToWorkspace: "Move to workspace",
+    workspace: "Workspace %1",
+    newWorkspace: "New workspace (%1)",
     allMonitors: "All"
   },
   pt: {
@@ -147,6 +150,9 @@ var tables = {
     positionLeft: "Esquerda",
     positionRight: "Direita",
     monitor: "Monitor",
+    moveToWorkspace: "Mover para workspace",
+    workspace: "Workspace %1",
+    newWorkspace: "Novo workspace (%1)",
     allMonitors: "Todos"
   }
 }

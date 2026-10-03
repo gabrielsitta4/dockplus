@@ -69,6 +69,10 @@ ShellRoot {
     check("folderIcons of any other folder", Logic.folderIcons("/home/me/Stuff"), ["folder", "inode-directory"])
     check("folderToken drops trailing slashes", Logic.folderToken("@folder:", "/home/me/Music//"), "@folder:/home/me/Music")
 
+    check("workspaceTargets skips the current one", Logic.workspaceTargets([3, 1, 2, -98], 2), { existing: [1, 3], fresh: 4 })
+    check("workspaceTargets fills a gap", Logic.workspaceTargets([1, 3], 1), { existing: [3], fresh: 2 })
+    check("workspaceTargets with no workspace", Logic.workspaceTargets([], 0), { existing: [], fresh: 1 })
+
     check("badgeFrom with a visible count", Logic.badgeFrom({ appId: "discord", count: 7, countVisible: true }),
       { key: "discord", value: { count: 7, progress: -1 } })
     check("badgeFrom with a hidden count", Logic.badgeFrom({ appId: "discord", count: 7, countVisible: false }),

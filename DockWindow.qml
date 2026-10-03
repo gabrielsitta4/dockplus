@@ -203,6 +203,15 @@ PanelWindow {
     ]
   }
 
+  function workspaceMenu(toplevel) {
+    var targets = dock.workspaceTargets(toplevel)
+    var entries = targets.existing.map(function(id) {
+      return { label: dock.tr("workspace").replace("%1", id), run: function() { win.dock.moveToWorkspace(toplevel, id) } }
+    })
+    entries.push({ label: dock.tr("newWorkspace").replace("%1", targets.fresh), run: function() { win.dock.moveToWorkspace(toplevel, targets.fresh) } })
+    return entries
+  }
+
   function backgroundMenu() {
     return [{ label: dock.tr("settings"), run: function() { dock.openSettings() } }]
   }

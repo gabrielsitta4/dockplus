@@ -43,6 +43,10 @@ DockSlot {
       var target = open.find(function(window) { return window.activated }) || open[0]
       item.dock.minimizer.minimize(target)
     } })
+    if (open.length > 0) entries.push({ label: dock.tr("moveToWorkspace"), run: function() {
+      var target = open.find(function(window) { return window.activated }) || open[0]
+      item.host.openMenu(item, item.host.workspaceMenu(target))
+    } })
     if (minimized.length > 0) entries.push({ label: dock.tr("restore"), run: function() {
       item.dock.minimizer.restore(minimized[minimized.length - 1])
     } })

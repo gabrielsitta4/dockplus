@@ -80,6 +80,7 @@ var tables = {
     pause: "Pause",
     previous: "Previous track",
     next: "Next track",
+    recentFiles: "Recent files",
     allMonitors: "All"
   },
   pt: {
@@ -161,6 +162,7 @@ var tables = {
     pause: "Pausar",
     previous: "Faixa anterior",
     next: "Próxima faixa",
+    recentFiles: "Arquivos recentes",
     allMonitors: "Todos"
   }
 }

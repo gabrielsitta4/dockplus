@@ -29,6 +29,23 @@ function trackLabel(title, artist) {
   return parts.join(" · ")
 }
 
+function programName(command) {
+  if (!command || command.length === 0) return ""
+  var parts = String(command[0]).split("/")
+  return parts[parts.length - 1]
+}
+
+function recentFor(map, names, limit) {
+  var out = []
+  names.forEach(function(name) {
+    var files = name && map ? map[name] || [] : []
+    files.forEach(function(file) {
+      if (out.length < limit && !out.some(function(other) { return other.uri === file.uri })) out.push(file)
+    })
+  })
+  return out
+}
+
 function workspaceTargets(ids, current) {
   var used = ids.filter(function(id) { return id > 0 }).sort(function(a, b) { return a - b })
   var free = 1

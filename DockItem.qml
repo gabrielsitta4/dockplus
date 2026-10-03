@@ -48,7 +48,14 @@ DockSlot {
     actions.forEach(function(action) {
       entries.push({ label: action.name, run: function() { item.dock.runAction(action) } })
     })
-    if (actions.length > 0) entries.push({ separator: true })
+    var recentFiles = dock.recentFilesOf(appKey)
+    if (recentFiles.length > 0) {
+      entries.push({ label: dock.tr("recentFiles"), info: true })
+      recentFiles.forEach(function(file) {
+        entries.push({ label: file.name, run: function() { item.dock.openWith(item.appKey, [file.uri]) } })
+      })
+    }
+    if (actions.length > 0 || recentFiles.length > 0) entries.push({ separator: true })
     if (open.length > 0) entries.push({ label: dock.tr("minimize"), run: function() {
       var target = open.find(function(window) { return window.activated }) || open[0]
       item.dock.minimizer.minimize(target)

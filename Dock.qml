@@ -162,6 +162,8 @@ Item {
       action.execute()
   }
 
+  function recentFilesOf(key) { return dockRecent.filesFor(entryFor(key)) }
+
   function playerFor(key) {
     var entry = entryFor(key)
     var name = entry ? String(entry.name).toLowerCase() : ""
@@ -481,6 +483,8 @@ Item {
     id: dockBadges
     known: root.badgeKeys
   }
+
+  Recent { id: dockRecent }
 
   Recording {
     id: dockRecording

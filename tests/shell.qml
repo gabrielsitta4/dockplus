@@ -80,6 +80,13 @@ ShellRoot {
     check("trackLabel without an artist", Logic.trackLabel("Video", ""), "Video")
     check("trackLabel with nothing", Logic.trackLabel(undefined, null), "")
 
+    check("programName drops the path", Logic.programName(["/usr/bin/evince", "--new-window"]), "evince")
+    check("programName of no command", Logic.programName([]), "")
+    var recent = { "org.gnome.Evince": [{ uri: "file:///a.pdf", name: "a.pdf" }], evince: [{ uri: "file:///a.pdf", name: "a.pdf" }, { uri: "file:///b.pdf", name: "b.pdf" }] }
+    check("recentFor merges names without repeating a file", Logic.recentFor(recent, ["org.gnome.Evince", "evince"], 5).map(function(file) { return file.name }), ["a.pdf", "b.pdf"])
+    check("recentFor respects the limit", Logic.recentFor(recent, ["evince"], 1).length, 1)
+    check("recentFor with an unknown app", Logic.recentFor(recent, ["foot", ""], 5), [])
+
     check("badgeFrom with a visible count", Logic.badgeFrom({ appId: "discord", count: 7, countVisible: true }),
       { key: "discord", value: { count: 7, progress: -1 } })
     check("badgeFrom with a hidden count", Logic.badgeFrom({ appId: "discord", count: 7, countVisible: false }),

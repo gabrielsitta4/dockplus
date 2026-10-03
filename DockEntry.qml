@@ -69,6 +69,7 @@ Loader {
     id: folderEntry
 
     DockAction {
+      id: folderAction
       readonly property string path: loader.modelData.path
 
       dock: loader.dock
@@ -78,7 +79,7 @@ Loader {
       iconNames: loader.dock.folderIcons(path)
       acceptsDrops: true
       onFilesDropped: function(urls) { loader.dock.copyToFolder(path, loader.dock.localPaths(urls)) }
-      onActivated: loader.dock.openFolder(path)
+      onActivated: loader.host.toggleStack(folderAction, path)
       menuBuilder: function(anchor) { return loader.host.folderMenu(loader.modelData.token, path) }
     }
   }

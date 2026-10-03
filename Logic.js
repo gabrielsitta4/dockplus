@@ -46,6 +46,31 @@ function recentFor(map, names, limit) {
   return out
 }
 
+var imageSuffixes = ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg"]
+var suffixIcons = [
+  { icon: "video-x-generic", suffixes: ["mp4", "mkv", "webm", "avi", "mov"] },
+  { icon: "audio-x-generic", suffixes: ["mp3", "flac", "ogg", "opus", "wav", "m4a"] },
+  { icon: "application-pdf", suffixes: ["pdf"] },
+  { icon: "package-x-generic", suffixes: ["zip", "rar", "7z", "tar", "gz", "xz", "zst"] },
+  { icon: "x-office-document", suffixes: ["doc", "docx", "odt"] },
+  { icon: "x-office-spreadsheet", suffixes: ["xls", "xlsx", "ods", "csv"] }
+]
+
+function suffixOf(name) {
+  var dot = String(name).lastIndexOf(".")
+  return dot > 0 ? String(name).substring(dot + 1).toLowerCase() : ""
+}
+
+function isImage(name) { return imageSuffixes.indexOf(suffixOf(name)) !== -1 }
+
+function fileIcons(name, isDir) {
+  if (isDir) return ["folder", "inode-directory"]
+  var suffix = suffixOf(name)
+  for (var i = 0; i < suffixIcons.length; i++)
+    if (suffixIcons[i].suffixes.indexOf(suffix) !== -1) return [suffixIcons[i].icon, "text-x-generic"]
+  return ["text-x-generic", "unknown"]
+}
+
 function workspaceTargets(ids, current) {
   var used = ids.filter(function(id) { return id > 0 }).sort(function(a, b) { return a - b })
   var free = 1

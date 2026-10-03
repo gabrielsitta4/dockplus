@@ -81,6 +81,8 @@ var tables = {
     previous: "Previous track",
     next: "Next track",
     recentFiles: "Recent files",
+    openFolder: "Open folder",
+    emptyFolder: "This folder is empty",
     allMonitors: "All"
   },
   pt: {
@@ -163,6 +165,8 @@ var tables = {
     previous: "Faixa anterior",
     next: "Próxima faixa",
     recentFiles: "Arquivos recentes",
+    openFolder: "Abrir pasta",
+    emptyFolder: "Esta pasta está vazia",
     allMonitors: "Todos"
   }
 }

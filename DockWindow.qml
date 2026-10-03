@@ -37,7 +37,7 @@ PanelWindow {
   readonly property bool fullscreenActive: hyprMonitor ? dock.fullscreenOn(hyprMonitor.name) : false
   readonly property bool recordingActive: dock.config.hideWhileRecording && dock.recording
   readonly property bool wantShown: !fullscreenActive && !recordingActive
-    && (!autohide || hover.hovered || menuOpen || previewOpen || workspaceEmpty || dragItem !== null || urgentReveal || numbersVisible || fileDragActive)
+    && (!autohide || hover.hovered || menuOpen || previewOpen || stackOpen || workspaceEmpty || dragItem !== null || urgentReveal || numbersVisible || fileDragActive)
   property bool shown: !autohide
   property bool urgentReveal: false
   property bool numbersVisible: false
@@ -54,6 +54,9 @@ PanelWindow {
   property var hoverCandidate: null
   property real previewCenter: 0
   readonly property bool previewOpen: previewKey !== ""
+  property string stackPath: ""
+  property real stackCenter: 0
+  readonly property bool stackOpen: stackPath !== ""
   readonly property var scope: dock.scopeFor(hyprMonitor)
   readonly property var entries: dock.entriesFor(scope)
   readonly property var previewWindows: previewOpen ? dock.windowsOf(previewKey, scope) : []
@@ -114,8 +117,20 @@ PanelWindow {
     dock.activateEntry(entries[index], scope)
   }
 
+  function toggleStack(item, path) {
+    menuOpen = false
+    previewKey = ""
+    if (stackPath === path) {
+      stackPath = ""
+      return
+    }
+    stackCenter = mainCenter(item)
+    stackPath = path
+  }
+
   function togglePreview(item) {
     menuOpen = false
+    stackPath = ""
     previewCloseTimer.stop()
     if (previewKey === item.appKey) {
       if (previewByHover) previewByHover = false
@@ -128,7 +143,7 @@ PanelWindow {
   }
 
   function openHoverPreview(item) {
-    if (menuOpen || previewKey === item.appKey) return
+    if (menuOpen || stackOpen || previewKey === item.appKey) return
     previewCenter = mainCenter(item)
     previewKey = item.appKey
     previewByHover = true
@@ -160,6 +175,7 @@ PanelWindow {
 
   function openMenu(item, entries) {
     previewKey = ""
+    stackPath = ""
     menuEntries = entries
     menuCenter = item ? mainCenter(item) : (vertical ? height : width) / 2
     menuOpen = true
@@ -240,6 +256,7 @@ PanelWindow {
     showTimer.stop()
     menuOpen = false
     previewKey = ""
+    stackPath = ""
     shown = false
   }
 
@@ -278,6 +295,13 @@ PanelWindow {
       width: win.previewOpen ? preview.width : 0
       height: win.previewOpen ? preview.height : 0
     }
+
+    Region {
+      x: stack.x
+      y: stack.y
+      width: win.stackOpen ? stack.width : 0
+      height: win.stackOpen ? stack.height : 0
+    }
   }
 
   Connections {
@@ -313,10 +337,11 @@ PanelWindow {
 
   HyprlandFocusGrab {
     windows: [win]
-    active: win.menuOpen || (win.previewOpen && !win.previewByHover)
+    active: win.menuOpen || win.stackOpen || (win.previewOpen && !win.previewByHover)
     onCleared: {
       win.menuOpen = false
       win.previewKey = ""
+      win.stackPath = ""
     }
   }
 
@@ -412,7 +437,7 @@ PanelWindow {
     Rectangle {
       id: tooltip
 
-      readonly property bool active: win.hoveredItem !== null && !win.menuOpen && !win.previewOpen && win.shown && win.dragItem === null
+      readonly property bool active: win.hoveredItem !== null && !win.menuOpen && !win.previewOpen && !win.stackOpen && win.shown && win.dragItem === null
 
       visible: opacity > 0
       opacity: active ? 1 : 0
@@ -491,6 +516,16 @@ PanelWindow {
           }
         }
       }
+    }
+
+    FolderStack {
+      id: stack
+      visible: win.stackOpen
+      dock: win.dock
+      path: win.stackPath
+      x: win.popupX(width, win.stackCenter)
+      y: win.popupY(height, win.stackCenter)
+      onFinished: win.stackPath = ""
     }
 
     Rectangle {

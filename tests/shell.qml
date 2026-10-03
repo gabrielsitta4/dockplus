@@ -87,6 +87,12 @@ ShellRoot {
     check("recentFor respects the limit", Logic.recentFor(recent, ["evince"], 1).length, 1)
     check("recentFor with an unknown app", Logic.recentFor(recent, ["foot", ""], 5), [])
 
+    check("isImage by suffix", Logic.isImage("Photo.JPG"), true)
+    check("isImage of a hidden file name", Logic.isImage(".png"), false)
+    check("fileIcons of a folder", Logic.fileIcons("sub", true)[0], "folder")
+    check("fileIcons of an archive", Logic.fileIcons("mod.tar.zst", false)[0], "package-x-generic")
+    check("fileIcons of something unknown", Logic.fileIcons("notes", false), ["text-x-generic", "unknown"])
+
     check("badgeFrom with a visible count", Logic.badgeFrom({ appId: "discord", count: 7, countVisible: true }),
       { key: "discord", value: { count: 7, progress: -1 } })
     check("badgeFrom with a hidden count", Logic.badgeFrom({ appId: "discord", count: 7, countVisible: false }),

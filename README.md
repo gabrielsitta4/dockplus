@@ -1,7 +1,7 @@
 # DockPlus
 
 [![Omarchy](https://img.shields.io/badge/Omarchy-Quattro-1f2335?style=for-the-badge)](https://omarchy.org/)
-[![Version](https://img.shields.io/github/v/release/nventatech/dockplus?label=version&color=54a3d8&style=for-the-badge)](https://github.com/nventatech/dockplus/releases)
+[![Version](https://img.shields.io/github/v/release/gabrielsitta4/dockplus?label=version&color=54a3d8&style=for-the-badge)](https://github.com/gabrielsitta4/dockplus/releases)
 [![Quickshell](https://img.shields.io/badge/Quickshell-plugin-54a3d8?style=for-the-badge)](https://quickshell.org/)
 [![License](https://img.shields.io/badge/license-GPL--3.0-green?style=for-the-badge)](LICENSE)
 
@@ -14,10 +14,10 @@ A Dash to Dock style dock for the Omarchy shell. Hyprland has no minimize, so Do
 - One icon per app: pinned apps, running apps and their minimized windows together.
 - Real minimize, including the minimize button of X11 apps such as Steam.
 - Live window previews on click or on hover, and a picker for every minimized window.
-- Right click menu with the app's own actions (Steam Library, a Brave incognito window).
+- Right click menu with the app's own actions (Steam Library, a Brave incognito window), its recent files, media controls for music and video, and a way to move a window to another workspace.
 - Drag any icon to reorder it. Drop files on an app to open them, on a drive to copy them, or on the trash to delete them.
-- Trash, removable drives, pinned folders and an applications button, each one optional.
-- Unread counts and progress bars on the icons, from the apps that publish them.
+- Trash, removable drives, pinned folders and an applications button, each one optional. A pinned folder opens as a stack of its newest files.
+- Unread counts and progress bars on the icons, from the apps that publish them. Other apps get a count of their notifications that clears when you open the app.
 - Bottom, left or right edge, autohide, panel mode, optional blur, and it stays out of fullscreen games and screen recordings.
 - Scroll to cycle windows, a bounce while an app starts and a wiggle when a window asks for attention.
 - Settings window with tabs for appearance, position, behavior, animations and items.
@@ -38,12 +38,12 @@ A Dash to Dock style dock for the Omarchy shell. Hyprland has no minimize, so Do
 
 ## Requirements
 
-Omarchy 4 (Quattro). Everything else ships with Omarchy: `python3` and `python-gobject` for the X11 minimize helper and the icon badges, `udisks2` and `gvfs` for drives and trash, `gtk-launch` and `uwsm` to start apps.
+Omarchy 4 (Quattro). Everything else ships with Omarchy: `python3` and `python-gobject` for the X11 minimize helper, the icon badges, the notification counts and the recent files, `udisks2` and `gvfs` for drives and trash, `gtk-launch` and `uwsm` to start apps.
 
 ## Install
 
 ```bash
-omarchy plugin add https://github.com/nventatech/dockplus --enable
+omarchy plugin add https://github.com/gabrielsitta4/dockplus --enable
 ```
 
 Right click any icon and pick **Dock settings** to change anything, or run `omarchy-shell dockplus settings`.
@@ -77,7 +77,7 @@ Stored in `~/.config/dockplus/config.json` and edited by the settings window:
 - Position: `position`, `monitor`, `autohide`.
 - Behavior: `clickAction` (`smart`, `cycle`, `launch`), `previewOnHover`, `superNumbers`, `hideWhileRecording`.
 - Animations: `animations`, `animationSpeed`, `revealStyle` (`slide`, `fade`, `none`), `hoverZoom`, `launchBounce`, `urgentWiggle`, `showDelay`, `hideDelay`.
-- Items: `showPinned`, `showAppsButton`, `showTrash`, `showDrives`, `isolateMonitors`, `isolateWorkspaces`.
+- Items: `showPinned`, `notificationBadges`, `showAppsButton`, `showTrash`, `showDrives`, `isolateMonitors`, `isolateWorkspaces`.
 - `pinned`: dock order, desktop entry ids plus `@drives`, `@trash`, `@apps` and `@folder:<path>`.
 
 ## Tests

@@ -46,7 +46,7 @@ DockSlot {
     var minimized = minimizedWindows.slice()
     var all = windows.slice()
     var target = open.find(function(window) { return window.activated }) || open[0]
-    var player = dock.playerFor(appKey)
+    var player = dock.config.showMedia ? dock.playerFor(appKey) : null
 
     var launch = []
     if (entry) launch.push({ label: dock.tr("newWindow"), run: function() { item.dock.newWindow(item.appKey) } })
@@ -54,7 +54,7 @@ DockSlot {
       launch.push({ label: action.name, run: function() { item.dock.runAction(action) } })
     })
 
-    var recent = dock.recentFilesOf(appKey).map(function(file) {
+    var recent = (dock.config.showRecent ? dock.recentFilesOf(appKey) : []).map(function(file) {
       return { label: file.name, run: function() { item.dock.openWith(item.appKey, [file.uri]) } }
     })
     if (recent.length > 0) recent.unshift({ label: dock.tr("recentFiles"), info: true })
@@ -88,6 +88,14 @@ DockSlot {
     ])
   }
 
+  function middleClick() {
+    var mode = dock.config.middleClick
+    var target = openWindows.find(function(window) { return window.activated }) || openWindows[0]
+    if (mode === "close") { if (target) dock.closeWindow(target) }
+    else if (mode === "minimize") { if (target) dock.minimizer.minimize(target) }
+    else if (entry) dock.newWindow(appKey)
+  }
+
   function leftClick() {
     var mode = dock.config.clickAction
     if (!(mode === "smart" && windows.length > 1)) host.dismissHoverPreview()
@@ -110,11 +118,11 @@ DockSlot {
 
   activatesOnDrag: true
 
-  onScrolled: function(step) { dock.cycleWindows(appKey, step, host.scope) }
+  onScrolled: function(step) { if (dock.config.scrollAction === "cycle") dock.cycleWindows(appKey, step, host.scope) }
 
   onClicked: function(button) {
     if (button === Qt.RightButton) host.openMenu(item, menuEntries())
-    else if (button === Qt.MiddleButton) { if (entry) dock.newWindow(appKey) }
+    else if (button === Qt.MiddleButton) middleClick()
     else leftClick()
   }
 

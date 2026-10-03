@@ -10,6 +10,43 @@ Item {
   readonly property string configDir: configHome + "/dockplus"
   readonly property string configPath: configDir + "/config.json"
 
+  readonly property var defaults: ({
+    autohide: true,
+    iconSize: 48,
+    monitor: "",
+    position: "bottom",
+    showAppsButton: true,
+    showTrash: true,
+    showDrives: true,
+    showPinned: true,
+    notificationBadges: true,
+    appBadges: true,
+    showMedia: true,
+    showRecent: true,
+    folderClick: "stack",
+    middleClick: "newWindow",
+    scrollAction: "cycle",
+    previewDelay: 500,
+    clickAction: "smart",
+    isolateMonitors: false,
+    animations: true,
+    animationSpeed: 100,
+    hoverZoom: 10,
+    launchBounce: true,
+    urgentWiggle: true,
+    revealStyle: "slide",
+    showDelay: 120,
+    hideDelay: 450,
+    superNumbers: false,
+    previewOnHover: false,
+    indicatorStyle: "default",
+    backgroundOpacity: 100,
+    panelMode: false,
+    blur: false,
+    hideWhileRecording: true,
+    isolateWorkspaces: false
+  })
+
   readonly property int minIconSize: 24
   readonly property int maxIconSize: 96
 
@@ -17,7 +54,7 @@ Item {
   readonly property int iconSize: Math.max(minIconSize, Math.min(maxIconSize, adapter.iconSize))
   readonly property string monitor: adapter.monitor
   readonly property var positions: ["bottom", "left", "right"]
-  readonly property string position: positions.indexOf(adapter.position) !== -1 ? adapter.position : "bottom"
+  readonly property string position: positions.indexOf(adapter.position) !== -1 ? adapter.position : defaults.position
   readonly property bool showAppsButton: adapter.showAppsButton
   readonly property bool showTrash: adapter.showTrash
   readonly property bool showDrives: adapter.showDrives
@@ -25,7 +62,7 @@ Item {
   readonly property bool notificationBadges: adapter.notificationBadges
   readonly property int minOpacity: 15
   readonly property var indicatorStyles: ["default", "dots", "dashes", "segments"]
-  readonly property string indicatorStyle: indicatorStyles.indexOf(adapter.indicatorStyle) !== -1 ? adapter.indicatorStyle : "default"
+  readonly property string indicatorStyle: indicatorStyles.indexOf(adapter.indicatorStyle) !== -1 ? adapter.indicatorStyle : defaults.indicatorStyle
   readonly property int backgroundOpacity: Math.max(minOpacity, Math.min(100, adapter.backgroundOpacity))
   readonly property bool panelMode: adapter.panelMode
   readonly property bool blur: adapter.blur
@@ -36,7 +73,7 @@ Item {
   readonly property bool launchBounce: adapter.launchBounce
   readonly property bool urgentWiggle: adapter.urgentWiggle
   readonly property var revealStyles: ["slide", "fade", "none"]
-  readonly property string revealStyle: revealStyles.indexOf(adapter.revealStyle) !== -1 ? adapter.revealStyle : "slide"
+  readonly property string revealStyle: revealStyles.indexOf(adapter.revealStyle) !== -1 ? adapter.revealStyle : defaults.revealStyle
   readonly property int showDelay: Math.max(0, Math.min(500, adapter.showDelay))
   readonly property int hideDelay: Math.max(200, Math.min(2000, adapter.hideDelay))
   readonly property bool isolateMonitors: adapter.isolateMonitors
@@ -44,7 +81,17 @@ Item {
   readonly property bool previewOnHover: adapter.previewOnHover
   readonly property bool isolateWorkspaces: adapter.isolateWorkspaces
   readonly property var clickActions: ["smart", "cycle", "launch"]
-  readonly property string clickAction: clickActions.indexOf(adapter.clickAction) !== -1 ? adapter.clickAction : "smart"
+  readonly property string clickAction: clickActions.indexOf(adapter.clickAction) !== -1 ? adapter.clickAction : defaults.clickAction
+  readonly property bool appBadges: adapter.appBadges
+  readonly property bool showMedia: adapter.showMedia
+  readonly property bool showRecent: adapter.showRecent
+  readonly property var folderClicks: ["stack", "open"]
+  readonly property string folderClick: folderClicks.indexOf(adapter.folderClick) !== -1 ? adapter.folderClick : defaults.folderClick
+  readonly property var middleClicks: ["newWindow", "close", "minimize"]
+  readonly property string middleClick: middleClicks.indexOf(adapter.middleClick) !== -1 ? adapter.middleClick : defaults.middleClick
+  readonly property var scrollActions: ["cycle", "none"]
+  readonly property string scrollAction: scrollActions.indexOf(adapter.scrollAction) !== -1 ? adapter.scrollAction : defaults.scrollAction
+  readonly property int previewDelay: Math.max(100, Math.min(1500, adapter.previewDelay))
 
   readonly property string folderPrefix: "@folder:"
   readonly property var specials: ["@drives", "@trash", "@apps"]
@@ -89,6 +136,17 @@ Item {
   function setIsolateMonitors(value) { adapter.isolateMonitors = value === true }
   function setIsolateWorkspaces(value) { adapter.isolateWorkspaces = value === true }
   function setClickAction(value) { if (clickActions.indexOf(value) !== -1) adapter.clickAction = value }
+  function setAppBadges(value) { adapter.appBadges = value === true }
+  function setShowMedia(value) { adapter.showMedia = value === true }
+  function setShowRecent(value) { adapter.showRecent = value === true }
+  function setFolderClick(value) { if (folderClicks.indexOf(value) !== -1) adapter.folderClick = value }
+  function setMiddleClick(value) { if (middleClicks.indexOf(value) !== -1) adapter.middleClick = value }
+  function setScrollAction(value) { if (scrollActions.indexOf(value) !== -1) adapter.scrollAction = value }
+  function setPreviewDelay(value) { adapter.previewDelay = Math.max(100, Math.min(1500, Math.round(value))) }
+
+  function resetDefaults() {
+    for (var key in defaults) adapter[key] = defaults[key]
+  }
 
   function isSpecial(token) { return String(token).charAt(0) === "@" }
 
@@ -148,33 +206,40 @@ Item {
 
     JsonAdapter {
       id: adapter
-      property bool autohide: true
-      property int iconSize: 48
-      property string monitor: ""
-      property string position: "bottom"
-      property bool showAppsButton: true
-      property bool showTrash: true
-      property bool showDrives: true
-      property bool showPinned: true
-      property bool notificationBadges: true
-      property string clickAction: "smart"
-      property bool isolateMonitors: false
-      property bool animations: true
-      property int animationSpeed: 100
-      property int hoverZoom: 10
-      property bool launchBounce: true
-      property bool urgentWiggle: true
-      property string revealStyle: "slide"
-      property int showDelay: 120
-      property int hideDelay: 450
-      property bool superNumbers: false
-      property bool previewOnHover: false
-      property string indicatorStyle: "default"
-      property int backgroundOpacity: 100
-      property bool panelMode: false
-      property bool blur: false
-      property bool hideWhileRecording: true
-      property bool isolateWorkspaces: false
+      property bool autohide: root.defaults.autohide
+      property int iconSize: root.defaults.iconSize
+      property string monitor: root.defaults.monitor
+      property string position: root.defaults.position
+      property bool showAppsButton: root.defaults.showAppsButton
+      property bool showTrash: root.defaults.showTrash
+      property bool showDrives: root.defaults.showDrives
+      property bool showPinned: root.defaults.showPinned
+      property bool notificationBadges: root.defaults.notificationBadges
+      property bool appBadges: root.defaults.appBadges
+      property bool showMedia: root.defaults.showMedia
+      property bool showRecent: root.defaults.showRecent
+      property string folderClick: root.defaults.folderClick
+      property string middleClick: root.defaults.middleClick
+      property string scrollAction: root.defaults.scrollAction
+      property int previewDelay: root.defaults.previewDelay
+      property string clickAction: root.defaults.clickAction
+      property bool isolateMonitors: root.defaults.isolateMonitors
+      property bool animations: root.defaults.animations
+      property int animationSpeed: root.defaults.animationSpeed
+      property int hoverZoom: root.defaults.hoverZoom
+      property bool launchBounce: root.defaults.launchBounce
+      property bool urgentWiggle: root.defaults.urgentWiggle
+      property string revealStyle: root.defaults.revealStyle
+      property int showDelay: root.defaults.showDelay
+      property int hideDelay: root.defaults.hideDelay
+      property bool superNumbers: root.defaults.superNumbers
+      property bool previewOnHover: root.defaults.previewOnHover
+      property string indicatorStyle: root.defaults.indicatorStyle
+      property int backgroundOpacity: root.defaults.backgroundOpacity
+      property bool panelMode: root.defaults.panelMode
+      property bool blur: root.defaults.blur
+      property bool hideWhileRecording: root.defaults.hideWhileRecording
+      property bool isolateWorkspaces: root.defaults.isolateWorkspaces
       property list<string> pinned: []
     }
   }

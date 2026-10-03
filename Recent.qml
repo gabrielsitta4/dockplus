@@ -6,6 +6,7 @@ import "Logic.js" as Logic
 Item {
   id: root
 
+  property bool active: true
   property var map: ({})
 
   readonly property string dataHome: Quickshell.env("XDG_DATA_HOME") || (Quickshell.env("HOME") + "/.local/share")
@@ -17,7 +18,7 @@ Item {
   }
 
   FileView {
-    path: root.dataHome + "/recently-used.xbel"
+    path: root.active ? root.dataHome + "/recently-used.xbel" : ""
     preload: false
     watchChanges: true
     printErrors: false
@@ -27,7 +28,7 @@ Item {
   Timer {
     id: refresh
     interval: 1000
-    onTriggered: reader.running = true
+    onTriggered: reader.running = root.active
   }
 
   Process {
@@ -40,5 +41,10 @@ Item {
     }
   }
 
-  Component.onCompleted: reader.running = true
+  onActiveChanged: {
+    if (active) reader.running = true
+    else map = ({})
+  }
+
+  Component.onCompleted: reader.running = active
 }

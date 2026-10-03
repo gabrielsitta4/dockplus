@@ -491,11 +491,15 @@ Item {
     id: dockBadges
     known: root.badgeKeys
     countNotifications: dockConfig.notificationBadges
+    appBadges: dockConfig.appBadges
     focusedKey: Hyprland.activeToplevel ? root.keyOf(Hyprland.activeToplevel) : ""
     resolve: root.keyFromNames
   }
 
-  Recent { id: dockRecent }
+  Recent {
+    id: dockRecent
+    active: dockConfig.showRecent
+  }
 
   Recording {
     id: dockRecording

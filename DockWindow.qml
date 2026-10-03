@@ -116,8 +116,13 @@ PanelWindow {
     }
     var entry = entries[index]
     var slot = entryRepeater.itemAt(index)
-    if (entry.kind === "folder" && slot && slot.item) toggleStack(slot.item, entry.path)
+    if (entry.kind === "folder" && slot && slot.item) activateFolder(slot.item, entry.path)
     else dock.activateEntry(entry, scope)
+  }
+
+  function activateFolder(item, path) {
+    if (dock.config.folderClick === "open") dock.openFolder(path)
+    else toggleStack(item, path)
   }
 
   function toggleStack(item, path) {
@@ -323,7 +328,7 @@ PanelWindow {
 
   Timer {
     id: previewOpenTimer
-    interval: 500
+    interval: win.dock.config.previewDelay
     onTriggered: if (win.hoverCandidate && win.hoveredItem === win.hoverCandidate) win.openHoverPreview(win.hoverCandidate)
   }
 

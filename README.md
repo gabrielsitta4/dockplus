@@ -71,13 +71,13 @@ Other commands: `omarchy-shell dockplus settings`, `activate <N>`, `pin <appId>`
 
 ## Configuration
 
-Stored in `~/.config/dockplus/config.json` and edited by the settings window:
+Stored in `~/.config/dockplus/config.json` and edited by the settings window, which also restores the defaults (the dock order stays):
 
 - Appearance: `iconSize`, `backgroundOpacity`, `indicatorStyle`, `panelMode`, `blur`.
-- Position: `position`, `monitor`, `autohide`.
-- Behavior: `clickAction` (`smart`, `cycle`, `launch`), `previewOnHover`, `superNumbers`, `hideWhileRecording`.
+- Position: `position`, `monitor`, `autohide`, `isolateMonitors`, `isolateWorkspaces`.
+- Behavior: `clickAction` (`smart`, `cycle`, `launch`), `middleClick` (`newWindow`, `close`, `minimize`), `scrollAction` (`cycle`, `none`), `folderClick` (`stack`, `open`), `previewOnHover`, `previewDelay`, `superNumbers`, `hideWhileRecording`.
 - Animations: `animations`, `animationSpeed`, `revealStyle` (`slide`, `fade`, `none`), `hoverZoom`, `launchBounce`, `urgentWiggle`, `showDelay`, `hideDelay`.
-- Items: `showPinned`, `notificationBadges`, `showAppsButton`, `showTrash`, `showDrives`, `isolateMonitors`, `isolateWorkspaces`.
+- Menu and items: `showPinned`, `appBadges`, `notificationBadges`, `showAppsButton`, `showTrash`, `showDrives`, `showMedia`, `showRecent`.
 - `pinned`: dock order, desktop entry ids plus `@drives`, `@trash`, `@apps` and `@folder:<path>`.
 
 ## Tests

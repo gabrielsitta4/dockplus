@@ -9,6 +9,7 @@ PanelWindow {
   property var dock
   property bool opened: false
   property int tab: 0
+  property bool confirmReset: false
 
   readonly property var config: dock.config
   readonly property int borderWidth: Math.max(1, Style.space(2))
@@ -30,6 +31,19 @@ PanelWindow {
     { value: "smart", label: dock.tr("clickSmart") },
     { value: "cycle", label: dock.tr("clickCycle") },
     { value: "launch", label: dock.tr("clickLaunch") }
+  ]
+  readonly property var middleChoices: [
+    { value: "newWindow", label: dock.tr("newWindow") },
+    { value: "close", label: dock.tr("closeWindow") },
+    { value: "minimize", label: dock.tr("minimize") }
+  ]
+  readonly property var scrollChoices: [
+    { value: "cycle", label: dock.tr("clickCycle") },
+    { value: "none", label: dock.tr("scrollNone") }
+  ]
+  readonly property var folderChoices: [
+    { value: "stack", label: dock.tr("folderStack") },
+    { value: "open", label: dock.tr("folderOpen") }
   ]
   readonly property var indicatorChoices: [
     { value: "default", label: dock.tr("indicatorDefault") },
@@ -54,6 +68,7 @@ PanelWindow {
   }
 
   onOpenedChanged: {
+    confirmReset = false
     if (!opened) return
     screen = dock.focusedScreen()
     keys.forceActiveFocus()
@@ -90,7 +105,8 @@ PanelWindow {
 
   Rectangle {
     id: card
-    anchors.centerIn: parent
+    x: Math.round((parent.width - width) / 2)
+    y: Math.round((parent.height - (height - pages.height + pages.tallest)) / 2)
     width: 24 + win.tabWidth + 24 + win.contentWidth + 24
     height: footer.y + footer.height + 24
     radius: Style.cornerRadius
@@ -203,8 +219,10 @@ PanelWindow {
       x: header.x
       y: header.y + header.height + 18
       width: win.contentWidth
-      height: Math.max(appearancePage.implicitHeight, positionPage.implicitHeight,
-        behaviorPage.implicitHeight, animationsPage.implicitHeight, itemsPage.implicitHeight, tabColumn.implicitHeight - 6)
+      readonly property var all: [appearancePage, positionPage, behaviorPage, animationsPage, itemsPage]
+      readonly property real floor: tabColumn.implicitHeight - 6
+      readonly property real tallest: Math.max(floor, Math.max.apply(null, all.map(function(page) { return page.implicitHeight })))
+      height: Math.max(floor, all[win.tab].implicitHeight)
 
       Column {
         id: appearancePage
@@ -288,6 +306,21 @@ PanelWindow {
           checked: win.config.autohide
           onToggled: function(value) { win.config.setAutohide(value) }
         }
+
+        ToggleRow {
+          width: parent.width
+          label: win.dock.tr("isolateMonitors")
+          hint: win.dock.tr("isolateHint")
+          checked: win.config.isolateMonitors
+          onToggled: function(value) { win.config.setIsolateMonitors(value) }
+        }
+
+        ToggleRow {
+          width: parent.width
+          label: win.dock.tr("isolateWorkspaces")
+          checked: win.config.isolateWorkspaces
+          onToggled: function(value) { win.config.setIsolateWorkspaces(value) }
+        }
       }
 
       Column {
@@ -305,12 +338,45 @@ PanelWindow {
           onChosen: function(value) { win.config.setClickAction(value) }
         }
 
+        ChoiceRow {
+          width: parent.width
+          label: win.dock.tr("middleClick")
+          options: win.middleChoices
+          current: win.config.middleClick
+          onChosen: function(value) { win.config.setMiddleClick(value) }
+        }
+
+        ChoiceRow {
+          width: parent.width
+          label: win.dock.tr("scrollAction")
+          options: win.scrollChoices
+          current: win.config.scrollAction
+          onChosen: function(value) { win.config.setScrollAction(value) }
+        }
+
+        ChoiceRow {
+          width: parent.width
+          label: win.dock.tr("folderClick")
+          options: win.folderChoices
+          current: win.config.folderClick
+          onChosen: function(value) { win.config.setFolderClick(value) }
+        }
+
         ToggleRow {
           width: parent.width
           label: win.dock.tr("previewOnHover")
           hint: win.dock.tr("previewOnHoverHint")
           checked: win.config.previewOnHover
           onToggled: function(value) { win.config.setPreviewOnHover(value) }
+        }
+
+        SliderRow {
+          width: parent.width
+          visible: win.config.previewOnHover
+          label: win.dock.tr("previewDelay")
+          valueText: win.config.previewDelay + " ms"
+          ratio: (win.config.previewDelay - 100) / 1400
+          onMoved: function(ratio) { win.config.setPreviewDelay(Math.round((100 + ratio * 1400) / 50) * 50) }
         }
 
         ToggleRow {
@@ -413,6 +479,14 @@ PanelWindow {
 
         ToggleRow {
           width: parent.width
+          label: win.dock.tr("appBadges")
+          hint: win.dock.tr("appBadgesHint")
+          checked: win.config.appBadges
+          onToggled: function(value) { win.config.setAppBadges(value) }
+        }
+
+        ToggleRow {
+          width: parent.width
           label: win.dock.tr("notificationBadges")
           hint: win.dock.tr("notificationBadgesHint")
           checked: win.config.notificationBadges
@@ -442,17 +516,17 @@ PanelWindow {
 
         ToggleRow {
           width: parent.width
-          label: win.dock.tr("isolateMonitors")
-          hint: win.dock.tr("isolateHint")
-          checked: win.config.isolateMonitors
-          onToggled: function(value) { win.config.setIsolateMonitors(value) }
+          label: win.dock.tr("showMedia")
+          checked: win.config.showMedia
+          onToggled: function(value) { win.config.setShowMedia(value) }
         }
 
         ToggleRow {
           width: parent.width
-          label: win.dock.tr("isolateWorkspaces")
-          checked: win.config.isolateWorkspaces
-          onToggled: function(value) { win.config.setIsolateWorkspaces(value) }
+          label: win.dock.tr("showRecent")
+          hint: win.dock.tr("showRecentHint")
+          checked: win.config.showRecent
+          onToggled: function(value) { win.config.setShowRecent(value) }
         }
       }
     }
@@ -468,6 +542,49 @@ PanelWindow {
         width: parent.width
         height: 1
         color: Util.alpha(Color.popups.text, 0.2)
+      }
+
+      Rectangle {
+        id: resetButton
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        width: resetLabel.implicitWidth + 40
+        height: resetLabel.implicitHeight + 16
+        radius: Style.cornerRadius
+        color: resetMouse.containsMouse || win.confirmReset ? Util.alpha(Color.popups.text, 0.1) : "transparent"
+        border.width: 1
+        border.color: win.confirmReset ? Color.accent : Util.alpha(Color.popups.text, 0.3)
+
+        Text {
+          id: resetLabel
+          textFormat: Text.PlainText
+          anchors.centerIn: parent
+          text: win.dock.tr(win.confirmReset ? "confirmRestore" : "restoreDefaults")
+          color: Color.popups.text
+          font.family: Style.fontFamily
+          font.pixelSize: Style.fontPx(1)
+        }
+
+        MouseArea {
+          id: resetMouse
+          anchors.fill: parent
+          hoverEnabled: true
+          onClicked: {
+            if (win.confirmReset) {
+              win.confirmReset = false
+              win.config.resetDefaults()
+            } else {
+              win.confirmReset = true
+              resetTimer.restart()
+            }
+          }
+        }
+
+        Timer {
+          id: resetTimer
+          interval: 4000
+          onTriggered: win.confirmReset = false
+        }
       }
 
       Rectangle {

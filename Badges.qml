@@ -10,6 +10,7 @@ Item {
   property var map: ({})
   property int retries: 0
   property bool countNotifications: false
+  property bool appBadges: true
   property string focusedKey: ""
   property var resolve: null
   property var notified: ({})
@@ -22,7 +23,7 @@ Item {
   readonly property string notifyScript: Qt.resolvedUrl("notify-watch.py").toString().replace("file://", "")
 
   function of(key) {
-    if (map[key]) return map[key]
+    if (appBadges && map[key]) return map[key]
     return countNotifications && notified[key] ? { count: notified[key], progress: -1 } : null
   }
 
@@ -63,10 +64,11 @@ Item {
   }
   onFocusedKeyChanged: clear(focusedKey)
   onCountNotificationsChanged: if (!countNotifications) notified = ({})
+  onAppBadgesChanged: if (!appBadges) map = ({})
 
   Process {
     id: watch
-    running: true
+    running: root.appBadges
     command: ["python3", root.script]
     stdout: SplitParser {
       onRead: function(line) {
@@ -77,7 +79,7 @@ Item {
       }
     }
     onExited: {
-      if (root.retries >= root.maxRetries) return
+      if (!root.appBadges || root.retries >= root.maxRetries) return
       root.retries++
       watchRestart.restart()
     }
@@ -86,7 +88,7 @@ Item {
   Timer {
     id: watchRestart
     interval: 5000
-    onTriggered: watch.running = true
+    onTriggered: watch.running = root.appBadges
   }
 
   Process {

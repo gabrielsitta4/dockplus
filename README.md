@@ -80,6 +80,8 @@ Stored in `~/.config/dockplus/config.json` and edited by the settings window, wh
 - Menu and items: `showPinned`, `appBadges`, `notificationBadges`, `showAppsButton`, `showTrash`, `showDrives`, `showMedia`, `showRecent`.
 - `pinned`: dock order, desktop entry ids plus `@drives`, `@trash`, `@apps` and `@folder:<path>`.
 
+To keep a window out of the dock, give it the Hyprland tag `dockplus-hide`, for example with a window rule.
+
 ## Tests
 
 ```bash

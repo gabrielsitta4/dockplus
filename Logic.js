@@ -11,6 +11,10 @@ function cycleDecision(windowCount, openCount, focusedIndex) {
   return "cycle"
 }
 
+function hiddenByTag(tags) {
+  return (tags || []).some(function(tag) { return String(tag).replace(/\*$/, "") === "dockplus-hide" })
+}
+
 function nextIndex(count, current, step) {
   if (count <= 0) return -1
   if (current < 0 || current >= count) return step < 0 ? count - 1 : 0

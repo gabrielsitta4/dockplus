@@ -56,6 +56,10 @@ ShellRoot {
     check("cycleDecision with the only window focused", Logic.cycleDecision(1, 1, 0), "minimize")
     check("cycleDecision with several windows open", Logic.cycleDecision(3, 3, 1), "cycle")
 
+    check("hiddenByTag with the tag", Logic.hiddenByTag(["dockplus-hide"]), true)
+    check("hiddenByTag with a rule tag", Logic.hiddenByTag(["game", "dockplus-hide*"]), true)
+    check("hiddenByTag without the tag", Logic.hiddenByTag(["dockplus-hidex"]), false)
+    check("hiddenByTag without tags", Logic.hiddenByTag(undefined), false)
     check("nextIndex wraps forward", Logic.nextIndex(3, 2, 1), 0)
     check("nextIndex wraps backward", Logic.nextIndex(3, 0, -1), 2)
     check("nextIndex from nothing focused", Logic.nextIndex(3, -1, 1), 0)

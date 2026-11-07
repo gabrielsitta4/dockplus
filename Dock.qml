@@ -28,7 +28,8 @@ Item {
   property var clients: ({})
   readonly property bool recording: dockRecording.active
   readonly property var toplevels: Hyprland.toplevels.values.filter(function(toplevel) {
-    return root.clients["0x" + toplevel.address] !== undefined
+    var client = root.clients["0x" + toplevel.address]
+    return client !== undefined && !Logic.hiddenByTag(client.tags)
   })
 
   readonly property var badgeKeys: {

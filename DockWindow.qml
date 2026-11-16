@@ -37,7 +37,7 @@ PanelWindow {
   readonly property bool fullscreenActive: hyprMonitor ? dock.fullscreenOn(hyprMonitor.name) : false
   readonly property bool recordingActive: dock.config.hideWhileRecording && dock.recording
   readonly property bool wantShown: !fullscreenActive && !recordingActive
-    && (!autohide || hover.hovered || menuOpen || previewOpen || stackOpen || workspaceEmpty || dragItem !== null || urgentReveal || numbersVisible || fileDragActive)
+    && (!autohide || hover.hovered || menuOpen || previewOpen || stackOpen || mediaOpen || workspaceEmpty || dragItem !== null || urgentReveal || numbersVisible || fileDragActive)
   property bool shown: !autohide
   property bool urgentReveal: false
   property bool numbersVisible: false
@@ -57,6 +57,10 @@ PanelWindow {
   property string stackPath: ""
   property real stackCenter: 0
   readonly property bool stackOpen: stackPath !== ""
+  property bool mediaOpen: false
+  readonly property bool hasMedia: dock.media.player !== null
+  onHasMediaChanged: if (!hasMedia) mediaOpen = false
+  property real mediaCenter: 0
   readonly property var scope: dock.scopeFor(hyprMonitor)
   readonly property var entries: dock.entriesFor(scope)
   readonly property var previewWindows: previewOpen ? dock.windowsOf(previewKey, scope) : []
@@ -128,6 +132,7 @@ PanelWindow {
   function toggleStack(item, path) {
     menuOpen = false
     previewKey = ""
+    mediaOpen = false
     if (stackPath === path) {
       stackPath = ""
       return
@@ -136,9 +141,22 @@ PanelWindow {
     stackPath = path
   }
 
+  function toggleMedia(item) {
+    menuOpen = false
+    previewKey = ""
+    stackPath = ""
+    if (mediaOpen) {
+      mediaOpen = false
+      return
+    }
+    mediaCenter = mainCenter(item)
+    mediaOpen = true
+  }
+
   function togglePreview(item) {
     menuOpen = false
     stackPath = ""
+    mediaOpen = false
     previewCloseTimer.stop()
     if (previewKey === item.appKey) {
       if (previewByHover) previewByHover = false
@@ -151,7 +169,7 @@ PanelWindow {
   }
 
   function openHoverPreview(item) {
-    if (menuOpen || stackOpen || previewKey === item.appKey) return
+    if (menuOpen || stackOpen || mediaOpen || previewKey === item.appKey) return
     previewCenter = mainCenter(item)
     previewKey = item.appKey
     previewByHover = true
@@ -184,6 +202,7 @@ PanelWindow {
   function openMenu(item, entries) {
     previewKey = ""
     stackPath = ""
+    mediaOpen = false
     menuEntries = entries
     menuCenter = item ? mainCenter(item) : (vertical ? height : width) / 2
     menuOpen = true
@@ -270,6 +289,7 @@ PanelWindow {
     menuOpen = false
     previewKey = ""
     stackPath = ""
+    mediaOpen = false
     shown = false
   }
 
@@ -307,6 +327,13 @@ PanelWindow {
       y: preview.y
       width: win.previewOpen ? preview.width : 0
       height: win.previewOpen ? preview.height : 0
+    }
+
+    Region {
+      x: mediaPopup.x
+      y: mediaPopup.y
+      width: win.mediaOpen ? mediaPopup.width : 0
+      height: win.mediaOpen ? mediaPopup.height : 0
     }
 
     Region {
@@ -350,11 +377,12 @@ PanelWindow {
 
   HyprlandFocusGrab {
     windows: [win]
-    active: win.menuOpen || win.stackOpen || (win.previewOpen && !win.previewByHover)
+    active: win.menuOpen || win.stackOpen || win.mediaOpen || (win.previewOpen && !win.previewByHover)
     onCleared: {
       win.menuOpen = false
       win.previewKey = ""
       win.stackPath = ""
+      win.mediaOpen = false
     }
   }
 
@@ -391,8 +419,8 @@ PanelWindow {
       x: win.shown || !slides ? restX : hiddenX
       y: win.shown || !slides ? restY : hiddenY
       opacity: win.shown || slides ? 1 : 0
-      width: win.vertical ? win.panelThickness : win.panelMode ? content.width : grid.implicitWidth + win.panelPadding * 2
-      height: !win.vertical ? win.panelThickness : win.panelMode ? content.height : grid.implicitHeight + win.panelPadding * 2
+      width: win.vertical ? win.panelThickness : win.panelMode ? content.width : strip.implicitWidth + win.panelPadding * 2
+      height: !win.vertical ? win.panelThickness : win.panelMode ? content.height : strip.implicitHeight + win.panelPadding * 2
       radius: win.panelMode ? 0 : Style.cornerRadius
       color: Util.alpha(Color.bar.background, win.dock.config.backgroundOpacity / 100)
       border.width: win.borderWidth
@@ -411,23 +439,45 @@ PanelWindow {
       }
 
       Grid {
-        id: grid
+        id: strip
         anchors.centerIn: parent
         columns: win.vertical ? 1 : -1
         rows: win.vertical ? -1 : 1
-        spacing: win.itemSpacing
+        spacing: win.itemSpacing * 3
+        horizontalItemAlignment: Grid.AlignHCenter
+        verticalItemAlignment: Grid.AlignVCenter
 
-        Repeater {
-          id: entryRepeater
-          model: ScriptModel {
-            objectProp: "key"
-            values: win.entries
-          }
+        Grid {
+          id: grid
+          columns: win.vertical ? 1 : -1
+          rows: win.vertical ? -1 : 1
+          spacing: win.itemSpacing
 
-          DockEntry {
-            dock: win.dock
-            host: win
+          Repeater {
+            id: entryRepeater
+            model: ScriptModel {
+              objectProp: "key"
+              values: win.entries
+            }
+
+            DockEntry {
+              dock: win.dock
+              host: win
+            }
           }
+        }
+
+        Rectangle {
+          visible: mediaStrip.visible
+          width: win.vertical ? win.iconSize : 1
+          height: win.vertical ? 1 : win.iconSize
+          color: Util.alpha(Color.bar.text, 0.2)
+        }
+
+        MediaStrip {
+          id: mediaStrip
+          dock: win.dock
+          host: win
         }
       }
 
@@ -439,8 +489,8 @@ PanelWindow {
         readonly property real across: win.itemPadding + (win.position === "left" ? win.indicatorSpace : 0)
 
         visible: active
-        x: grid.x + (win.vertical ? across : along)
-        y: grid.y + (win.vertical ? along : across)
+        x: strip.x + grid.x + (win.vertical ? across : along)
+        y: strip.y + grid.y + (win.vertical ? along : across)
         width: win.vertical ? win.iconSize : 2
         height: win.vertical ? 2 : win.iconSize
         radius: 1
@@ -451,7 +501,7 @@ PanelWindow {
     Rectangle {
       id: tooltip
 
-      readonly property bool active: win.hoveredItem !== null && !win.menuOpen && !win.previewOpen && !win.stackOpen && win.shown && win.dragItem === null
+      readonly property bool active: win.hoveredItem !== null && !win.menuOpen && !win.previewOpen && !win.stackOpen && !win.mediaOpen && win.shown && win.dragItem === null
 
       visible: opacity > 0
       opacity: active ? 1 : 0
@@ -540,6 +590,14 @@ PanelWindow {
       x: win.popupX(width, win.stackCenter)
       y: win.popupY(height, win.stackCenter)
       onFinished: win.stackPath = ""
+    }
+
+    MediaPopup {
+      id: mediaPopup
+      visible: win.mediaOpen
+      dock: win.dock
+      x: win.popupX(width, win.mediaCenter)
+      y: win.popupY(height, win.mediaCenter)
     }
 
     Rectangle {

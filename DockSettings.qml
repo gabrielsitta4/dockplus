@@ -516,6 +516,14 @@ PanelWindow {
 
         ToggleRow {
           width: parent.width
+          label: win.dock.tr("mediaItem")
+          hint: win.dock.tr("mediaItemHint")
+          checked: win.config.mediaItem
+          onToggled: function(value) { win.config.setMediaItem(value) }
+        }
+
+        ToggleRow {
+          width: parent.width
           label: win.dock.tr("showMedia")
           checked: win.config.showMedia
           onToggled: function(value) { win.config.setShowMedia(value) }

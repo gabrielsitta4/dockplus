@@ -93,8 +93,10 @@ ShellRoot {
     check("recentFor respects the limit", Logic.recentFor(recent, ["evince"], 1).length, 1)
     check("recentFor with an unknown app", Logic.recentFor(recent, ["foot", ""], 5), [])
 
-    check("isImage by suffix", Logic.isImage("Photo.JPG"), true)
-    check("isImage of a hidden file name", Logic.isImage(".png"), false)
+    check("steamGameId from a Steam shortcut", Logic.steamGameId(["steam", "steam://rungameid/570"]), "570")
+    check("steamGameId ignores a longer id", Logic.steamGameId(["steam", "steam://rungameid/570x"]), "")
+    check("steamGameId without Steam", Logic.steamGameId(["firefox", "%u"]), "")
+    check("fileUri escapes like GLib", Logic.fileUri("/tmp/a b/\u00e7;#&=+,@:$!~'()*[]?%.png"), "file:///tmp/a%20b/%C3%A7%3B%23&=+,@:$!~'()*%5B%5D%3F%25.png")
     check("fileIcons of a folder", Logic.fileIcons("sub", true)[0], "folder")
     check("fileIcons of an archive", Logic.fileIcons("mod.tar.zst", false)[0], "package-x-generic")
     check("fileIcons of something unknown", Logic.fileIcons("notes", false), ["text-x-generic", "unknown"])

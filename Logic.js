@@ -28,6 +28,15 @@ function mprisName(busName) {
   return name.substring(prefix.length).split(".")[0]
 }
 
+function steamGameId(command) {
+  var args = command || []
+  for (var i = 0; i < args.length; i++) {
+    var match = /^steam:\/\/rungameid\/(\d+)$/.exec(String(args[i]))
+    if (match) return match[1]
+  }
+  return ""
+}
+
 function joinGroups(groups) {
   var out = []
   groups.filter(function(group) { return group.length > 0 }).forEach(function(group) {
@@ -59,7 +68,6 @@ function recentFor(map, names, limit) {
   return out
 }
 
-var imageSuffixes = ["png", "jpg", "jpeg", "gif", "webp", "bmp", "svg"]
 var suffixIcons = [
   { icon: "video-x-generic", suffixes: ["mp4", "mkv", "webm", "avi", "mov"] },
   { icon: "audio-x-generic", suffixes: ["mp3", "flac", "ogg", "opus", "wav", "m4a"] },
@@ -74,7 +82,11 @@ function suffixOf(name) {
   return dot > 0 ? String(name).substring(dot + 1).toLowerCase() : ""
 }
 
-function isImage(name) { return imageSuffixes.indexOf(suffixOf(name)) !== -1 }
+function fileUri(path) {
+  return "file://" + encodeURIComponent(String(path)).replace(/%(24|26|2B|2C|2F|3A|3D|40)/g, function(match, hex) {
+    return String.fromCharCode(parseInt(hex, 16))
+  })
+}
 
 function fileIcons(name, isDir) {
   if (isDir) return ["folder", "inode-directory"]

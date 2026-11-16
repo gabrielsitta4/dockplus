@@ -16,7 +16,9 @@ A Dash to Dock style dock for the Omarchy shell. Hyprland has no minimize, so Do
 - Live window previews on click or on hover, and a picker for every minimized window.
 - Right click menu with the app's own actions (Steam Library, a Brave incognito window), its recent files, media controls for music and video, and a way to move a window to another workspace.
 - Drag any icon to reorder it. Drop files on an app to open them, on a drive to copy them, or on the trash to delete them.
-- Trash, removable drives, pinned folders and an applications button, each one optional. A pinned folder opens as a stack of its newest files.
+- Trash, removable drives, pinned folders and an applications button, each one optional. A pinned folder opens as a stack of its newest files with thumbnails, made in a separate process and shared with your file manager.
+- What is playing at the end of the dock: cover, track name, play or pause and next. Right click switches player when more than one is open, middle click plays or pauses, scroll skips. On a side dock only the cover shows and a click opens the controls.
+- Steam games and agent windows get their own icon and name, including native games that have no window class of their own.
 - Unread counts and progress bars on the icons, from the apps that publish them. Other apps get a count of their notifications that clears when you open the app.
 - Bottom, left or right edge, autohide, panel mode, optional blur, and it stays out of fullscreen games and screen recordings.
 - Scroll to cycle windows, a bounce while an app starts and a wiggle when a window asks for attention.
@@ -77,7 +79,7 @@ Stored in `~/.config/dockplus/config.json` and edited by the settings window, wh
 - Position: `position`, `monitor`, `autohide`, `isolateMonitors`, `isolateWorkspaces`.
 - Behavior: `clickAction` (`smart`, `cycle`, `launch`), `middleClick` (`newWindow`, `close`, `minimize`), `scrollAction` (`cycle`, `none`), `folderClick` (`stack`, `open`), `previewOnHover`, `previewDelay`, `superNumbers`, `hideWhileRecording`.
 - Animations: `animations`, `animationSpeed`, `revealStyle` (`slide`, `fade`, `none`), `hoverZoom`, `launchBounce`, `urgentWiggle`, `showDelay`, `hideDelay`.
-- Menu and items: `showPinned`, `appBadges`, `notificationBadges`, `showAppsButton`, `showTrash`, `showDrives`, `showMedia`, `showRecent`.
+- Menu and items: `showPinned`, `appBadges`, `notificationBadges`, `showAppsButton`, `showTrash`, `showDrives`, `mediaItem`, `showMedia`, `showRecent`.
 - `pinned`: dock order, desktop entry ids plus `@drives`, `@trash`, `@apps` and `@folder:<path>`.
 
 To keep a window out of the dock, give it the Hyprland tag `dockplus-hide`, for example with a window rule.

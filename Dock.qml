@@ -17,6 +17,7 @@ Item {
   property alias trash: dockTrash
   property alias drives: dockDrives
   property alias minimizer: dockMinimizer
+  property alias media: dockMedia
   property int entriesRevision: 0
   readonly property int maxActions: 10
   readonly property int launchTimeout: 10000
@@ -140,6 +141,35 @@ Item {
     return DesktopEntries.byId(appId) || DesktopEntries.heuristicLookup(appId)
   }
 
+  function processOf(toplevel) {
+    var client = clientOf(toplevel)
+    return client ? dockProcess.of(client.pid) : null
+  }
+
+  function steamIdOf(toplevel) {
+    var match = /^steam_app_(\d+)$/.exec(appIdOf(toplevel))
+    if (match) return match[1]
+    var info = processOf(toplevel)
+    return info ? info.steam : ""
+  }
+
+  function steamEntry(id) {
+    if (!id || entriesRevision < 0) return null
+    var list = DesktopEntries.applications.values
+    for (var i = 0; i < list.length; i++)
+      if (Logic.steamGameId(list[i].command) === id) return list[i]
+    return null
+  }
+
+  function processIconOf(appId) {
+    for (var i = 0; i < toplevels.length; i++) {
+      if (appIdOf(toplevels[i]) !== appId) continue
+      var info = processOf(toplevels[i])
+      if (info && info.agentIcon) return "file://" + info.agentIcon
+    }
+    return ""
+  }
+
   function actionsFor(key) {
     var entry = entryFor(key)
     if (!entry) return []
@@ -187,6 +217,12 @@ Item {
     return playing.length > 0 ? playing[0] : matches.length > 0 ? matches[0] : null
   }
 
+  function playerIcon(player) {
+    if (!player) return ""
+    var entry = entryFor(player.desktopEntry) || entryFor(Logic.mprisName(player.dbusName)) || entryFor(String(player.identity || ""))
+    return entry ? iconFor(entry.id, entry) : ""
+  }
+
   function pinApp(appId) {
     var entry = entryFor(appId)
     config.pin(entry ? entry.id : appId)
@@ -223,7 +259,7 @@ Item {
 
   function keyOf(toplevel) {
     var appId = appIdOf(toplevel)
-    var entry = entryFor(appId)
+    var entry = entryFor(appId) || steamEntry(steamIdOf(toplevel))
     if (entry) return entry.id
     return appId || ("address:" + toplevel.address)
   }
@@ -276,7 +312,7 @@ Item {
       var path = Quickshell.iconPath(candidates[i], true)
       if (path) return path
     }
-    return Quickshell.iconPath("application-x-executable")
+    return processIconOf(appId) || Quickshell.iconPath("application-x-executable")
   }
 
   function address(toplevel) { return "0x" + toplevel.address }
@@ -488,6 +524,8 @@ Item {
     dock: root
   }
 
+  Media { id: dockMedia }
+
   Badges {
     id: dockBadges
     known: root.badgeKeys
@@ -500,6 +538,12 @@ Item {
   Recent {
     id: dockRecent
     active: dockConfig.showRecent
+  }
+
+  WindowProcess {
+    id: dockProcess
+    pids: root.toplevels.filter(function(toplevel) { return !root.entryFor(root.appIdOf(toplevel)) })
+      .map(function(toplevel) { return root.clientOf(toplevel).pid })
   }
 
   Recording {

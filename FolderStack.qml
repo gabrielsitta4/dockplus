@@ -1,6 +1,7 @@
 import QtQuick
 import Qt.labs.folderlistmodel
 import Quickshell
+import Quickshell.Io
 import qs.Commons
 import "Logic.js" as Logic
 
@@ -13,8 +14,24 @@ Rectangle {
   readonly property int maxFiles: 12
   readonly property int cellWidth: 92
   readonly property int iconSize: 48
-  readonly property real maxThumbnailBytes: 32 * 1024 * 1024
+  readonly property string thumbnailHome: (Quickshell.env("XDG_CACHE_HOME") || (Quickshell.env("HOME") + "/.cache")) + "/thumbnails/"
+  readonly property var thumbnailSizes: ["normal", "large"]
   readonly property int shown: path ? Math.min(files.count, maxFiles) : 0
+  readonly property string thumbnailScript: Qt.resolvedUrl("safe-image.py").toString().replace("file://", "")
+  property int thumbnailRevision: 0
+
+  onShownChanged: thumbnailTimer.restart()
+  onPathChanged: thumbnailTimer.restart()
+
+  function makeThumbnails() {
+    var paths = []
+    for (var i = 0; i < shown; i++)
+      if (files.get(i, "fileIsDir") !== true) paths.push(String(files.get(i, "filePath") || ""))
+    paths = paths.filter(function(item) { return item !== "" })
+    if (paths.length === 0 || thumbnailer.running) return
+    thumbnailer.command = ["python3", thumbnailScript, "thumbnails", thumbnailHome + "large"].concat(paths)
+    thumbnailer.running = true
+  }
 
   signal finished()
 
@@ -38,6 +55,17 @@ Rectangle {
   color: Color.popups.background
   border.width: Math.max(1, Style.space(2))
   border.color: Color.popups.border
+
+  Timer {
+    id: thumbnailTimer
+    interval: 200
+    onTriggered: stack.makeThumbnails()
+  }
+
+  Process {
+    id: thumbnailer
+    onExited: stack.thumbnailRevision++
+  }
 
   FolderListModel {
     id: files
@@ -74,8 +102,15 @@ Rectangle {
         readonly property string fileName: files.get(index, "fileName") || ""
         readonly property string filePath: files.get(index, "filePath") || ""
         readonly property bool isDir: files.get(index, "fileIsDir") === true
-        readonly property real fileSize: files.get(index, "fileSize") || 0
-        readonly property bool isImage: !isDir && fileSize > 0 && fileSize <= stack.maxThumbnailBytes && Logic.isImage(fileName)
+        readonly property string thumbnailName: isDir || !filePath ? "" : Qt.md5(Logic.fileUri(filePath)) + ".png"
+        property int thumbnailAttempt: 0
+
+        Connections {
+          target: stack
+          function onThumbnailRevisionChanged() {
+            if (cell.thumbnailAttempt >= stack.thumbnailSizes.length) cell.thumbnailAttempt = 0
+          }
+        }
 
         width: stack.cellWidth
         height: stack.iconSize + cellLabel.implicitHeight + 16
@@ -91,7 +126,10 @@ Rectangle {
           fillMode: Image.PreserveAspectFit
           asynchronous: true
           smooth: true
-          source: cell.isImage ? files.get(cell.index, "fileUrl") : stack.iconSource(cell.fileName, cell.isDir)
+          source: cell.thumbnailName && cell.thumbnailAttempt < stack.thumbnailSizes.length
+            ? "file://" + stack.thumbnailHome + stack.thumbnailSizes[cell.thumbnailAttempt] + "/" + cell.thumbnailName
+            : stack.iconSource(cell.fileName, cell.isDir)
+          onStatusChanged: if (status === Image.Error && cell.thumbnailName) cell.thumbnailAttempt++
         }
 
         Text {

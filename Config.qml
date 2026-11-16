@@ -22,6 +22,7 @@ Item {
     notificationBadges: true,
     appBadges: true,
     showMedia: true,
+    mediaItem: true,
     showRecent: true,
     folderClick: "stack",
     middleClick: "newWindow",
@@ -84,6 +85,7 @@ Item {
   readonly property string clickAction: clickActions.indexOf(adapter.clickAction) !== -1 ? adapter.clickAction : defaults.clickAction
   readonly property bool appBadges: adapter.appBadges
   readonly property bool showMedia: adapter.showMedia
+  readonly property bool mediaItem: adapter.mediaItem
   readonly property bool showRecent: adapter.showRecent
   readonly property var folderClicks: ["stack", "open"]
   readonly property string folderClick: folderClicks.indexOf(adapter.folderClick) !== -1 ? adapter.folderClick : defaults.folderClick
@@ -138,6 +140,7 @@ Item {
   function setClickAction(value) { if (clickActions.indexOf(value) !== -1) adapter.clickAction = value }
   function setAppBadges(value) { adapter.appBadges = value === true }
   function setShowMedia(value) { adapter.showMedia = value === true }
+  function setMediaItem(value) { adapter.mediaItem = value === true }
   function setShowRecent(value) { adapter.showRecent = value === true }
   function setFolderClick(value) { if (folderClicks.indexOf(value) !== -1) adapter.folderClick = value }
   function setMiddleClick(value) { if (middleClicks.indexOf(value) !== -1) adapter.middleClick = value }
@@ -217,6 +220,7 @@ Item {
       property bool notificationBadges: root.defaults.notificationBadges
       property bool appBadges: root.defaults.appBadges
       property bool showMedia: root.defaults.showMedia
+      property bool mediaItem: root.defaults.mediaItem
       property bool showRecent: root.defaults.showRecent
       property string folderClick: root.defaults.folderClick
       property string middleClick: root.defaults.middleClick

@@ -119,6 +119,12 @@ Rectangle {
         anchors.verticalCenter: cover.verticalCenter
 
         Glyph {
+          code: 0xF04AE
+          active: !!popup.media.player && popup.media.player.canGoPrevious
+          onTriggered: popup.media.run("previous")
+        }
+
+        Glyph {
           code: popup.media.playing ? 0xF03E4 : 0xF040A
           active: !!popup.media.player && popup.media.player.canTogglePlaying
           onTriggered: popup.media.run("playPause")

@@ -10,7 +10,8 @@ Item {
   readonly property var media: dock.media
   readonly property bool wide: !host.vertical
   readonly property int coverSize: host.iconSize
-  readonly property int textWidth: Math.round(host.iconSize * 3.4)
+  readonly property int maxTextWidth: Math.round(host.iconSize * 3.4)
+  readonly property int textWidth: Math.min(maxTextWidth, Math.max(controls.width - 5, Math.ceil(title.implicitWidth)))
   readonly property int glyphSize: Math.round(host.iconSize * 0.4)
   readonly property string coverSource: media.cover || dock.playerIcon(media.player)
 
@@ -113,6 +114,7 @@ Item {
     spacing: 2
 
     Text {
+      id: title
       textFormat: Text.PlainText
       width: strip.textWidth
       text: strip.media.title
@@ -124,7 +126,14 @@ Item {
     }
 
     Row {
+      id: controls
       x: -5
+
+      Glyph {
+        code: 0xF04AE
+        active: !!strip.media.player && strip.media.player.canGoPrevious
+        onTriggered: strip.media.run("previous")
+      }
 
       Glyph {
         code: strip.media.playing ? 0xF03E4 : 0xF040A

@@ -14,7 +14,7 @@ A Dash to Dock style dock for the Omarchy shell. Hyprland has no minimize, so Do
 - One icon per app: pinned apps, running apps and their minimized windows together.
 - Real minimize, including the minimize button of X11 apps such as Steam.
 - Live window previews on click or on hover, and a picker for every minimized window.
-- Right click menu with the app's own actions (Steam Library, a Brave incognito window), its recent files, media controls for music and video, and a way to move a window to another workspace.
+- Right click menu with the app's own actions (Steam Library, a Firefox private window), its recent files, media controls for music and video, and a way to move a window to another workspace.
 - Drag any icon to reorder it. Drop files on an app to open them, on a drive to copy them, or on the trash to delete them.
 - Trash, removable drives, pinned folders and an applications button, each one optional. A pinned folder opens as a stack of its newest files with thumbnails, made in a separate process and shared with your file manager.
 - What is playing at the end of the dock: cover, track name, play or pause and next. Right click switches player when more than one is open, middle click plays or pauses, scroll skips. On a side dock only the cover shows and a click opens the controls.
@@ -49,6 +49,8 @@ omarchy plugin add https://github.com/gabrielsitta4/dockplus --enable
 ```
 
 Right click any icon and pick **Dock settings** to change anything, or run `omarchy-shell dockplus settings`.
+
+Keep Omarchy's own `omarchy.dock` plugin enabled. It already stays hidden in tiling, and the applications grid behind the DockPlus apps button and `SUPER + ALT + SPACE` comes from it.
 
 ## Keybindings
 

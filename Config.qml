@@ -101,7 +101,7 @@ Item {
     var out = []
     for (var i = 0; i < adapter.pinned.length; i++) {
       var token = String(adapter.pinned[i])
-      if (token && out.indexOf(token) === -1) out.push(token)
+      if (token && token.charAt(0) !== "-" && out.indexOf(token) === -1) out.push(token)
     }
     for (var j = 0; j < specials.length; j++)
       if (out.indexOf(specials[j]) === -1) out.push(specials[j])
@@ -251,8 +251,10 @@ Item {
   Process {
     id: bootstrap
     command: ["sh", "-c",
-      "mkdir -p \"$1\"; cat \"${XDG_CONFIG_HOME:-$HOME/.config}/xdg-terminals.list\" /usr/share/xdg-terminal-exec/xdg-terminals.list 2>/dev/null"
-      + " | sed -n 's/^\\([^#[:space:]][^[:space:]]*\\)\\.desktop.*/\\1/p' | head -n1",
+      "mkdir -p \"$1\"; c=\"${XDG_CONFIG_HOME:-$HOME/.config}\"; s=/usr/share/xdg-terminal-exec;"
+      + " d=$(printf '%s' \"${XDG_CURRENT_DESKTOP%%:*}\" | tr '[:upper:]' '[:lower:]');"
+      + " cat ${d:+\"$c/$d-xdg-terminals.list\"} \"$c/xdg-terminals.list\" ${d:+\"$s/$d-xdg-terminals.list\"} \"$s/xdg-terminals.list\" 2>/dev/null"
+      + " | sed -n 's/^\\([^#[:space:]/-][^[:space:]]*\\)\\.desktop.*/\\1/p' | head -n1",
       "sh", root.configDir]
     stdout: StdioCollector {
       onStreamFinished: {

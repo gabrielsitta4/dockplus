@@ -28,6 +28,19 @@ function mprisName(busName) {
   return name.substring(prefix.length).split(".")[0]
 }
 
+function webAppAddress(command) {
+  var args = command || []
+  for (var i = 0; i < args.length; i++) {
+    var match = /^(?:--app=)?https?:\/\/(.+?)\/?$/.exec(String(args[i]))
+    if (match) return match[1]
+  }
+  return ""
+}
+
+function chromiumAppTitle(title) {
+  return String(title || "").replace(/\/$/, "")
+}
+
 function steamGameId(command) {
   var args = command || []
   for (var i = 0; i < args.length; i++) {

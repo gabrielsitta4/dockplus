@@ -161,6 +161,23 @@ Item {
     return null
   }
 
+  readonly property var webApps: {
+    var out = ({})
+    if (entriesRevision < 0) return out
+    var list = DesktopEntries.applications.values
+    for (var i = 0; i < list.length; i++) {
+      var address = Logic.webAppAddress(list[i].command)
+      if (address && out[address] === undefined) out[address] = list[i]
+    }
+    return out
+  }
+
+  function webAppEntry(toplevel) {
+    var client = clientOf(toplevel)
+    if (!client || client.xwayland !== true || !client.initialTitle) return null
+    return webApps[Logic.chromiumAppTitle(client.initialTitle)] || null
+  }
+
   function processIconOf(appId) {
     for (var i = 0; i < toplevels.length; i++) {
       if (appIdOf(toplevels[i]) !== appId) continue
@@ -259,7 +276,7 @@ Item {
 
   function keyOf(toplevel) {
     var appId = appIdOf(toplevel)
-    var entry = entryFor(appId) || steamEntry(steamIdOf(toplevel))
+    var entry = webAppEntry(toplevel) || entryFor(appId) || steamEntry(steamIdOf(toplevel))
     if (entry) return entry.id
     return appId || ("address:" + toplevel.address)
   }
@@ -302,6 +319,29 @@ Item {
     return open.concat(minimized)
   }
 
+  property var iconIndex: ({})
+  property var pendingIconIndex: ({})
+
+  function resolveIcon(name) {
+    var value = String(name || "")
+    if (value.length === 0) return ""
+    if (value.indexOf("file://") === 0 || value.indexOf("image://") === 0) return value
+    if (value.charAt(0) === "/") return "file://" + value
+    var found = root.iconIndex[value]
+    if (found) return "file://" + found
+    return Quickshell.iconPath(value, true)
+  }
+
+  function indexIconLine(line) {
+    var value = String(line || "").trim()
+    if (value.length === 0) return
+    var file = value.slice(value.lastIndexOf("/") + 1)
+    var dot = file.lastIndexOf(".")
+    var name = dot > 0 ? file.slice(0, dot) : file
+    if (name.length > 0 && root.pendingIconIndex[name] === undefined)
+      root.pendingIconIndex[name] = value
+  }
+
   function iconFor(appId, entry) {
     var steam = /^steam_app_(\d+)$/.exec(appId || "")
     var candidates = []
@@ -309,10 +349,10 @@ Item {
     if (steam) candidates.push("steam_icon_" + steam[1], "steam")
     if (appId) candidates.push(appId, appId.toLowerCase())
     for (var i = 0; i < candidates.length; i++) {
-      var path = Quickshell.iconPath(candidates[i], true)
+      var path = resolveIcon(candidates[i])
       if (path) return path
     }
-    return processIconOf(appId) || Quickshell.iconPath("application-x-executable")
+    return processIconOf(appId) || resolveIcon("application-x-executable")
   }
 
   function address(toplevel) { return "0x" + toplevel.address }
@@ -581,7 +621,33 @@ Item {
 
   Connections {
     target: DesktopEntries
-    function onApplicationsChanged() { root.entriesRevision++ }
+    function onApplicationsChanged() {
+      root.entriesRevision++
+      iconIndexDebounce.restart()
+    }
+  }
+
+  Process {
+    id: iconIndexScan
+    command: ["bash", "-c", [
+      'dirs="$HOME/.icons $HOME/.local/share/icons";',
+      'IFS=":"; for d in ${XDG_DATA_DIRS:-/usr/local/share:/usr/share}; do dirs="$dirs $d/icons"; done; unset IFS;',
+      '{',
+      '  for base in $dirs; do',
+      '    [[ -d $base ]] && find "$base" \\( -path "*/apps/*" -o -path "*/devices/*" \\) \\( -name "*.svg" -o -name "*.png" \\) 2>/dev/null;',
+      '  done;',
+      '  find /usr/share/pixmaps -maxdepth 1 \\( -name "*.svg" -o -name "*.png" \\) 2>/dev/null;',
+      '} | awk \'/\\.svg$/ { print; next } { png[++n] = $0 } END { for (i = 1; i <= n; i++) print png[i] }\''
+    ].join(" ")]
+    stdout: SplitParser { onRead: function(line) { root.indexIconLine(line) } }
+    onStarted: root.pendingIconIndex = ({})
+    onExited: root.iconIndex = root.pendingIconIndex
+  }
+
+  Timer {
+    id: iconIndexDebounce
+    interval: 750
+    onTriggered: if (!iconIndexScan.running) iconIndexScan.running = true
   }
 
   Connections {
@@ -623,6 +689,7 @@ Item {
 
   Component.onCompleted: {
     clientsQuery.running = true
+    iconIndexScan.running = true
     if (config.blur) applyBlur()
   }
 

@@ -7,6 +7,7 @@ import urllib.parse
 import urllib.request
 
 MAX_BYTES = 32 * 1024 * 1024
+MAX_URL = 128 * 1024
 MAX_MEMORY = 1024 * 1024 * 1024
 MAX_SECONDS = 10
 MAX_FILES = 12
@@ -47,14 +48,14 @@ def read_url(url):
     if parsed.scheme == "file":
         with open(urllib.parse.unquote(parsed.path), "rb") as handle:
             return handle.read(MAX_BYTES + 1)
-    if parsed.scheme in ("http", "https"):
+    if parsed.scheme in ("http", "https", "data"):
         with urllib.request.urlopen(url, timeout=5) as response:
             return response.read(MAX_BYTES + 1)
     return b""
 
 
 def cover(url, folder):
-    if len(url) > 4096:
+    if len(url) > MAX_URL:
         return
     name = "cover-" + hashlib.md5(url.encode()).hexdigest() + ".png"
     target = os.path.join(folder, name)

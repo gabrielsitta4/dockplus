@@ -327,9 +327,16 @@ Item {
     if (value.length === 0) return ""
     if (value.indexOf("file://") === 0 || value.indexOf("image://") === 0) return value
     if (value.charAt(0) === "/") return "file://" + value
+    var themed = Quickshell.iconPath(value, true)
+    if (themed) return themed
     var found = root.iconIndex[value]
-    if (found) return "file://" + found
-    return Quickshell.iconPath(value, true)
+    return found ? "file://" + found : ""
+  }
+
+  function iconScore(path) {
+    if (/\.svg$/.test(path)) return 100000
+    var size = /\/(\d+)x\d+/.exec(path)
+    return size ? Number(size[1]) : 64
   }
 
   function indexIconLine(line) {
@@ -338,7 +345,8 @@ Item {
     var file = value.slice(value.lastIndexOf("/") + 1)
     var dot = file.lastIndexOf(".")
     var name = dot > 0 ? file.slice(0, dot) : file
-    if (name.length > 0 && root.pendingIconIndex[name] === undefined)
+    var current = root.pendingIconIndex[name]
+    if (name.length > 0 && (current === undefined || iconScore(value) > iconScore(current)))
       root.pendingIconIndex[name] = value
   }
 
@@ -637,7 +645,7 @@ Item {
       '    [[ -d $base ]] && find "$base" \\( -path "*/apps/*" -o -path "*/devices/*" \\) \\( -name "*.svg" -o -name "*.png" \\) 2>/dev/null;',
       '  done;',
       '  find /usr/share/pixmaps -maxdepth 1 \\( -name "*.svg" -o -name "*.png" \\) 2>/dev/null;',
-      '} | awk \'/\\.svg$/ { print; next } { png[++n] = $0 } END { for (i = 1; i <= n; i++) print png[i] }\''
+      '}'
     ].join(" ")]
     stdout: SplitParser { onRead: function(line) { root.indexIconLine(line) } }
     onStarted: root.pendingIconIndex = ({})

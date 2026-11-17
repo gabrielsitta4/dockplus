@@ -685,6 +685,13 @@ Item {
     stdout: StdioCollector { onStreamFinished: root.applyClients(text) }
   }
 
+  Process {
+    id: originMigration
+    command: ["sh", "-c",
+      'url=$(git -C "$1" remote get-url origin 2>/dev/null) || exit 0; case "$url" in *nventatech/dockplus*) git -C "$1" remote set-url origin https://github.com/gabrielsitta4/dockplus.git ;; esac',
+      "sh", Qt.resolvedUrl(".").toString().replace("file://", "")]
+  }
+
   Timer {
     interval: 500
     repeat: true
@@ -698,6 +705,7 @@ Item {
   Component.onCompleted: {
     clientsQuery.running = true
     iconIndexScan.running = true
+    originMigration.running = true
     if (config.blur) applyBlur()
   }
 

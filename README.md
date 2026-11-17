@@ -12,13 +12,13 @@ A Dash to Dock style dock for the Omarchy shell. Hyprland has no minimize, so Do
 ## Features
 
 - One icon per app: pinned apps, running apps and their minimized windows together.
-- Real minimize, including the minimize button of X11 apps such as Steam.
+- Real minimize, including the minimize button of X11 apps such as Steam, and of Wayland apps with the [optional Hyprland plugin](#minimize-button-in-wayland-apps-optional).
 - Live window previews on click or on hover, and a picker for every minimized window.
 - Right click menu with the app's own actions (Steam Library, a Firefox private window), its recent files, media controls for music and video, and a way to move a window to another workspace.
 - Drag any icon to reorder it. Drop files on an app to open them, on a drive to copy them, or on the trash to delete them.
 - Trash, removable drives, pinned folders and an applications button, each one optional. A pinned folder opens as a stack of its newest files with thumbnails, made in a separate process and shared with your file manager.
-- What is playing at the end of the dock: cover, track name, play or pause and next. Right click switches player when more than one is open, middle click plays or pauses, scroll skips. On a side dock only the cover shows and a click opens the controls.
-- Steam games and agent windows get their own icon and name, including native games that have no window class of their own.
+- What is playing at the end of the dock: cover, track name, previous, play or pause and next. Right click switches player when more than one is open, middle click plays or pauses, scroll skips. On a side dock only the cover shows and a click opens the controls.
+- Steam games and agent windows get their own icon and name, including native games that have no window class of their own. Chromium web apps running on XWayland (`--app=` or `omarchy-launch-webapp`) get the icon of their own entry instead of the browser's.
 - Unread counts and progress bars on the icons, from the apps that publish them. Other apps get a count of their notifications that clears when you open the app.
 - Bottom, left or right edge, autohide, panel mode, optional blur, and it stays out of fullscreen games and screen recordings.
 - Scroll to cycle windows, a bounce while an app starts and a wiggle when a window asks for attention.
@@ -40,7 +40,7 @@ A Dash to Dock style dock for the Omarchy shell. Hyprland has no minimize, so Do
 
 ## Requirements
 
-Omarchy 4 (Quattro). Everything else ships with Omarchy: `python3` and `python-gobject` for the X11 minimize helper, the icon badges, the notification counts and the recent files, `udisks2` and `gvfs` for drives and trash, `gtk-launch` and `uwsm` to start apps.
+Omarchy 4 (Quattro). Everything else ships with Omarchy: `python3` and `python-gobject` for the X11 minimize helper, the icon badges, the notification counts and the recent files, `udisks2` and `gvfs` for drives and trash, `gtk-launch` and `uwsm` to start apps. The optional Hyprland plugin also needs `base-devel` to build.
 
 ## Install
 
@@ -86,19 +86,11 @@ Stored in `~/.config/dockplus/config.json` and edited by the settings window, wh
 
 To keep a window out of the dock, give it the Hyprland tag `dockplus-hide`, for example with a window rule.
 
-## Tests
-
-```bash
-./tests/run.sh
-```
-
-Runs the pure logic and the drive parsing in a throwaway Quickshell config. Prints every failing check and exits non zero if any of them failed.
-
 ## Minimize button in Wayland apps (optional)
 
 Hyprland ignores the minimize button of Wayland apps and does not tell them it can minimize, so most of them hide the button. The `hyprland-plugin` folder has a small Hyprland plugin that fixes both and hands the click to DockPlus. It is optional and builds on your machine, so it needs `base-devel`.
 
-Load it at login, it rebuilds itself after a Hyprland update. Add to `~/.config/hypr/autostart.lua`:
+To load it at every login, add this line to `~/.config/hypr/autostart.lua`. The script builds the plugin the first time and again after each Hyprland update:
 
 ```lua
 o.launch_on_start(os.getenv("HOME") .. "/.config/omarchy/plugins/io.github.nventatech.dockplus/hyprland-plugin/load.sh")
@@ -112,9 +104,17 @@ gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,c
 
 Apps opened after this show the button. To remove it, delete the autostart line and run `hyprctl plugin unload ~/.cache/dockplus/dockplus-minimize.so`.
 
+## Tests
+
+```bash
+./tests/run.sh
+```
+
+Runs the pure logic and the drive parsing in a throwaway Quickshell config. Prints every failing check and exits non zero if any of them failed.
+
 ## Limitations
 
-Without the optional Hyprland plugin below, the minimize button drawn by a native Wayland app does nothing: Hyprland drops the request. XWayland apps such as Steam work either way.
+Without the optional Hyprland plugin, the minimize button of a native Wayland app does nothing, because Hyprland drops the request. The plugin is built against the installed Hyprland and loads again only after the next login once Hyprland updates.
 
 With the dock on an edge shared with another monitor, the pointer crosses to the other screen instead of stopping. That makes the 2px reveal strip hard to hit while autohide is on.
 
@@ -122,7 +122,8 @@ With the dock on an edge shared with another monitor, the pointer crosses to the
 
 1. Turn off **Super + 1-9 opens dock items** if you turned it on (or run `hyprctl reload` afterwards).
 2. Run `omarchy plugin remove io.github.nventatech.dockplus`.
-3. Delete `~/.config/dockplus` and any DockPlus lines you added to `bindings.lua`.
+3. Delete `~/.config/dockplus` and any DockPlus lines you added to `bindings.lua` and `autostart.lua`.
+4. If you used the Hyprland plugin, run `hyprctl plugin unload ~/.cache/dockplus/dockplus-minimize.so` and delete `~/.cache/dockplus`.
 
 ## Donate
 

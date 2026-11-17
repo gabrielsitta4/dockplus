@@ -94,9 +94,27 @@ To keep a window out of the dock, give it the Hyprland tag `dockplus-hide`, for 
 
 Runs the pure logic and the drive parsing in a throwaway Quickshell config. Prints every failing check and exits non zero if any of them failed.
 
+## Minimize button in Wayland apps (optional)
+
+Hyprland ignores the minimize button of Wayland apps and does not tell them it can minimize, so most of them hide the button. The `hyprland-plugin` folder has a small Hyprland plugin that fixes both and hands the click to DockPlus. It is optional and builds on your machine, so it needs `base-devel`.
+
+Load it at login, it rebuilds itself after a Hyprland update. Add to `~/.config/hypr/autostart.lua`:
+
+```lua
+o.launch_on_start(os.getenv("HOME") .. "/.config/omarchy/plugins/io.github.nventatech.dockplus/hyprland-plugin/load.sh")
+```
+
+Omarchy shows only the close button, so add minimize to the layout. Run this, then put `gtk-decoration-layout=appmenu:minimize,close` under `[Settings]` in `~/.config/gtk-3.0/settings.ini` and `~/.config/gtk-4.0/settings.ini`:
+
+```bash
+gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,close'
+```
+
+Apps opened after this show the button. To remove it, delete the autostart line and run `hyprctl plugin unload ~/.cache/dockplus/dockplus-minimize.so`.
+
 ## Limitations
 
-The minimize button drawn by a native Wayland app does nothing. The app sends the request and Hyprland drops it, so nothing outside the compositor ever sees the click. XWayland apps such as Steam work, and an Electron app can be moved to XWayland with `--ozone-platform=x11`. For everything else use your minimize binding or the icon menu.
+Without the optional Hyprland plugin below, the minimize button drawn by a native Wayland app does nothing: Hyprland drops the request. XWayland apps such as Steam work either way.
 
 With the dock on an edge shared with another monitor, the pointer crosses to the other screen instead of stopping. That makes the 2px reveal strip hard to hit while autohide is on.
 

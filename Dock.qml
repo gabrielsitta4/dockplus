@@ -688,7 +688,7 @@ Item {
   Process {
     id: originMigration
     command: ["sh", "-c",
-      'url=$(git -C "$1" remote get-url origin 2>/dev/null) || exit 0; case "$url" in *nventatech/dockplus*) git -C "$1" remote set-url origin https://github.com/gabrielsitta4/dockplus.git ;; esac',
+      'url=$(git -C "$1" config --get remote.origin.url) || exit 0; case "$url" in https://github.com/nventatech/dockplus|https://github.com/nventatech/dockplus.git|https://github.com/nventatech/dockplus/) git -C "$1" remote set-url origin https://github.com/gabrielsitta4/dockplus.git ;; esac',
       "sh", Qt.resolvedUrl(".").toString().replace("file://", "")]
   }
 
